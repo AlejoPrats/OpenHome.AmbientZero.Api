@@ -1,0 +1,11 @@
+AmbientZero.Api/bin/
+AmbientZero.Api/.config/
+AmbientZero.Api/obj/
+AmbientZero.Api/Properties/
+AmbientZero.Data/bin/
+AmbientZero.Data/obj/
+AmbientZero.Service/bin/
+AmbientZero.Service/obj/
+*.db
+AmbientZero.Api/appsettings.Development.json
+.vs/

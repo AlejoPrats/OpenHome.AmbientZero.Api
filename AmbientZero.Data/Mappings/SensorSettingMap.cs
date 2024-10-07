@@ -1,11 +1,6 @@
 ﻿using AmbientZero.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AmbientZero.Data.Mappings
 {
@@ -15,6 +10,7 @@ namespace AmbientZero.Data.Mappings
         {
             entityBuilder.HasKey(x => x.Id);
             entityBuilder.Property(x => x.Id).ValueGeneratedOnAdd();
+            entityBuilder.HasOne(x => x.Sensor).WithOne(x => x.Settings);
             entityBuilder.ToTable("sensorSetting");
         }
     }

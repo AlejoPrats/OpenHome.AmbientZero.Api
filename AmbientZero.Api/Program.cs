@@ -16,7 +16,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AmbientZeroContext>(options => options.UseSqlite("Filename=ambientZero.db"));
+
 builder.Services.Configure<ServicesDependencies>(builder.Configuration.GetSection("ServicesDependencies"));
+builder.Services.Configure<BatteryInfo>(builder.Configuration.GetSection("BatteryInfo"));
 
 builder.Services.AddTransient<IMeasurmentService, MeasurmentService>();
 builder.Services.AddTransient<ISensorService, SensorService>();

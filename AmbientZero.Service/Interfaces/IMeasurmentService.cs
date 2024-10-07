@@ -1,5 +1,4 @@
-﻿using AmbientZero.Data.Entities;
-using AmbientZero.Service.Models.Request;
+﻿using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Result;
 
 namespace AmbientZero.Service.Interfaces
@@ -10,7 +9,7 @@ namespace AmbientZero.Service.Interfaces
         /// Adds a measurement to the database validating that the sensor and sensor settings exists to avoid data inconcistencies
         /// </summary>
         /// <param name="measurementRequest">Simple object recieved from the sensor to record the infomation in the DB</param>
-        void AddNewMeasurement(MeasurementRequest measurementRequest);
+        AddMeasurementResult AddNewMeasurement(MeasurementRequest measurementRequest);
 
         /// <summary>
         /// Gets the temperature for the specified day from all sensors

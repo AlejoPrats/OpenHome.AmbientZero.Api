@@ -9,6 +9,7 @@ namespace AmbientZero.Data
         public DbSet<DeviceInformation> Devices { get; set; }
         public DbSet<MeasurementLog> Measurements { get; set; }
         public DbSet<SensorSetting> SensorSettings { get; set; }
+        public DbSet<ApplicationSetting> ApplicationSettings { get; set; }
         public AmbientZeroContext(DbContextOptions<AmbientZeroContext> options) : base(options)
         {
             Database.EnsureCreated();

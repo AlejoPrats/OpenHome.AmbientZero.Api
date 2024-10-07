@@ -1,11 +1,6 @@
 ﻿using AmbientZero.Data.Entities;
 using AmbientZero.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AmbientZero.Data.Repositories
 {
@@ -39,7 +34,8 @@ namespace AmbientZero.Data.Repositories
         {
             _ambientZeroContext.Devices
                 .Where(x => x.DeviceId == deviceInformation.DeviceId)
-                .ExecuteUpdate(x => x.SetProperty(d => d.IsSignaling, deviceInformation.IsSignaling));
+                .ExecuteUpdate(x => x.SetProperty(d => d.IsSignaling, deviceInformation.IsSignaling)
+                .SetProperty(d => d.ADCReading, deviceInformation.ADCReading));
         }
 
         public void UpdateSensorVirtualName(string deviceId, string virtualName)

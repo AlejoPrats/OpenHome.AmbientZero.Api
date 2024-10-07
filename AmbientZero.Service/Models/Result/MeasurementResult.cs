@@ -1,6 +1,4 @@
-﻿using AmbientZero.Data.Entities;
-
-namespace AmbientZero.Service.Models.Result
+﻿namespace AmbientZero.Service.Models.Result
 {
     public class MeasurementResult
     {

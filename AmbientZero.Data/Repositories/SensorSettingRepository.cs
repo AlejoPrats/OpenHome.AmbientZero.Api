@@ -1,11 +1,6 @@
 ﻿using AmbientZero.Data.Entities;
 using AmbientZero.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AmbientZero.Data.Repositories
 {
@@ -18,11 +13,11 @@ namespace AmbientZero.Data.Repositories
         }
 
         public bool SensorSettingExist(string deviceId)
-        { 
+        {
             return _ambientZeroContext.SensorSettings.Any(x => x.DeviceId == deviceId);
         }
 
-        public SensorSetting GetSensorSettingForSensor(string deviceId)
+        public SensorSetting? GetSensorSettingForSensor(string deviceId)
         {
             return _ambientZeroContext.SensorSettings.FirstOrDefault(x => x.DeviceId == deviceId);
         }

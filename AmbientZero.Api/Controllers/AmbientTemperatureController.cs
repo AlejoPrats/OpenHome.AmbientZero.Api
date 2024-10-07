@@ -1,5 +1,4 @@
-﻿using AmbientZero.Data.Entities;
-using AmbientZero.Service.Interfaces;
+﻿using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Result;
 using Microsoft.AspNetCore.Mvc;
@@ -12,19 +11,23 @@ namespace AmbientZero.Api.Controllers
     {
         private readonly ILogger<AmbientTemperatureController> _logger;
         private readonly IMeasurmentService _measurmentService;
+        private readonly ISensorService _sensorService;
 
         public AmbientTemperatureController(ILogger<AmbientTemperatureController> logger,
-            IMeasurmentService measurmentService)
+            IMeasurmentService measurmentService,
+            ISensorService sensorService)
         {
             _logger = logger;
             _measurmentService = measurmentService;
+            _sensorService = sensorService;
         }
 
         [HttpPut]
-        public ActionResult AddMeasurement(MeasurementRequest measurementRequest)
+        public ActionResult<AddMeasurementResult> AddMeasurement(MeasurementRequest measurementRequest)
         {
-            _measurmentService.AddNewMeasurement(measurementRequest);
-            return Accepted();
+            var result = _measurmentService.AddNewMeasurement(measurementRequest);
+            result.IsLightEnabled = _sensorService.ShouldTurnLightOn(result.DeviceId ?? measurementRequest.DeviceId);
+            return Accepted(result);
         }
 
         [HttpGet]

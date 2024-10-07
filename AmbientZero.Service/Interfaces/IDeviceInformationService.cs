@@ -27,7 +27,7 @@ namespace AmbientZero.Service.Interfaces
         /// </summary>
         /// <returns>CPU usage percentage</returns>
         string GetCpuUsage();
-        
+
         /// <summary>
         /// Gets the ram usage percentage executeing the free command
         /// </summary>

@@ -3,12 +3,8 @@ using AmbientZero.Data.Interfaces;
 using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Result;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AmbientZero.Service.Models.Settings;
+using Microsoft.Extensions.Options;
 
 namespace AmbientZero.Service.Services
 {
@@ -17,14 +13,17 @@ namespace AmbientZero.Service.Services
         private readonly IMeasurmentLogRepository _measurmentRepository;
         private readonly IDeviceInformationRepository _deviceInformationRepository;
         private readonly ISensorSettingRepository _sensorSettingRepository;
+        private readonly BatteryInfo _batteryInfo;
 
         public SensorService(IMeasurmentLogRepository measurmentLogRepository,
             IDeviceInformationRepository deviceInformationRepository,
-            ISensorSettingRepository sensorSettingRepository)
+            ISensorSettingRepository sensorSettingRepository,
+            IOptions<BatteryInfo> batteryInfo)
         {
             _measurmentRepository = measurmentLogRepository;
             _deviceInformationRepository = deviceInformationRepository;
             _sensorSettingRepository = sensorSettingRepository;
+            _batteryInfo = batteryInfo?.Value ?? throw new ArgumentNullException(nameof(batteryInfo));
         }
 
         public IEnumerable<SensorInformationResult> GetSensorInformation()
@@ -34,7 +33,7 @@ namespace AmbientZero.Service.Services
                 .Select(x => new SensorInformationResult()
                 {
                     DeviceId = x.DeviceId,
-                    ADCReading = x.ADCReading,
+                    ADCReading = GetBatteryPercentage(x.ADCReading),
                     DeviceVirtualName = x.DeviceVirtualName,
                     Id = x.Id,
                     IsSignaling = x.IsSignaling,
@@ -131,6 +130,16 @@ namespace AmbientZero.Service.Services
             {
                 return false;
             }
+        }
+
+        private int GetBatteryPercentage(int? batteryLevel)
+        {
+            if (batteryLevel.HasValue)
+            {
+                return Convert.ToInt32(((batteryLevel.Value - _batteryInfo.MinBatteryValue) * 100) / _batteryInfo.MaxBatteryRelativeValue);
+            }
+
+            return 0;
         }
     }
 

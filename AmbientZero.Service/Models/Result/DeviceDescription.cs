@@ -21,6 +21,6 @@ namespace AmbientZero.Service.Models.Result
 
         [JsonPropertyName("MQTTPort")]
         public int MQTTPort { get; set; }
-       
+
     }
 }

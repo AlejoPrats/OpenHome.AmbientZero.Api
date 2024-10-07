@@ -3,11 +3,6 @@ using AmbientZero.Data.Interfaces;
 using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Result;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AmbientZero.Service.Services
 {
@@ -25,8 +20,16 @@ namespace AmbientZero.Service.Services
             _sensorSettingRepository = sensorSettingRepository;
         }
 
-        public void AddNewMeasurement(MeasurementRequest measurementRequest)
+        public AddMeasurementResult AddNewMeasurement(MeasurementRequest measurementRequest)
         {
+            var result = new AddMeasurementResult();
+
+            if (string.IsNullOrEmpty(measurementRequest.DeviceId))
+            {
+                measurementRequest.DeviceId = Guid.NewGuid().ToString();
+                result.DeviceId = measurementRequest.DeviceId;
+            }
+
             var deviceInformation = new DeviceInformation()
             {
                 DeviceId = measurementRequest.DeviceId,
@@ -43,7 +46,7 @@ namespace AmbientZero.Service.Services
                 _deviceInformationRepository.AddNewSensor(deviceInformation);
             }
 
-            if(!_sensorSettingRepository.SensorSettingExist(measurementRequest.DeviceId)) 
+            if (!_sensorSettingRepository.SensorSettingExist(measurementRequest.DeviceId))
             {
                 _sensorSettingRepository.AddSensorSetting(new SensorSetting { DeviceId = measurementRequest.DeviceId, IsLightEnabled = true });
             }
@@ -56,6 +59,8 @@ namespace AmbientZero.Service.Services
             };
 
             _measurmentRepository.AddMeasurmentLog(measurementLog);
+
+            return result;
         }
 
         public IEnumerable<MeasurementResult> GetDailyTemperature(DateTime dateTime)

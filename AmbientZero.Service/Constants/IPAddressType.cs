@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AmbientZero.Service.Constants
+﻿namespace AmbientZero.Service.Constants
 {
     public enum IPAddressType
     {

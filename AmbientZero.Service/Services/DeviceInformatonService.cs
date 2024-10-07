@@ -11,7 +11,7 @@ namespace AmbientZero.Service.Services
     public class DeviceInformatonService : IDeviceInformationService
     {
         private readonly ServicesDependencies _servicesDependencies;
-        public DeviceInformatonService(IOptions<ServicesDependencies> servicesDependencies) 
+        public DeviceInformatonService(IOptions<ServicesDependencies> servicesDependencies)
         {
             _servicesDependencies = servicesDependencies?.Value ?? throw new ArgumentNullException(nameof(servicesDependencies));
         }
@@ -20,7 +20,7 @@ namespace AmbientZero.Service.Services
         {
             string commandResult = string.Empty;
             ProcessStartInfo getNetCmd = new ProcessStartInfo() { FileName = "ip", Arguments = "-j -br address", RedirectStandardOutput = true };
-            
+
             using (Process proc = new Process() { StartInfo = getNetCmd })
             {
                 proc.Start();
@@ -56,7 +56,7 @@ namespace AmbientZero.Service.Services
 
                 result.Add(JsonSerializer.Deserialize<ServiceStatus>(commandResult));
             }
-            
+
             return result;
         }
 
@@ -64,18 +64,18 @@ namespace AmbientZero.Service.Services
         {
             var result = new List<string>();
 
-                ProcessStartInfo getAppLogs = new ProcessStartInfo() { FileName = "journalctl", Arguments = $"--unit={serviceName} --lines=30", RedirectStandardOutput = true };
-                string commandResult = string.Empty;
+            ProcessStartInfo getAppLogs = new ProcessStartInfo() { FileName = "journalctl", Arguments = $"--unit={serviceName} --lines=30", RedirectStandardOutput = true };
+            string commandResult = string.Empty;
 
-                using (Process proc = new Process() { StartInfo = getAppLogs })
-                {
-                    proc.Start();
-                    StreamReader sr = proc.StandardOutput;
-                    commandResult = sr.ReadToEnd();
-                    proc.WaitForExit();
-                }
+            using (Process proc = new Process() { StartInfo = getAppLogs })
+            {
+                proc.Start();
+                StreamReader sr = proc.StandardOutput;
+                commandResult = sr.ReadToEnd();
+                proc.WaitForExit();
+            }
 
-                result = commandResult.Split(Environment.NewLine).ToList();
+            result = commandResult.Split(Environment.NewLine).ToList();
 
             return result;
         }
@@ -105,7 +105,7 @@ namespace AmbientZero.Service.Services
             {
                 proc.Start();
                 StreamReader sr = proc.StandardOutput;
-                mqttPort = sr.ReadToEnd().Replace("listener",string.Empty).Trim();
+                mqttPort = sr.ReadToEnd().Replace("listener", string.Empty).Trim();
                 proc.WaitForExit();
             }
 

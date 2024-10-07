@@ -1,11 +1,5 @@
-﻿using AmbientZero.Data.Entities;
-using AmbientZero.Service.Models.Request;
+﻿using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Result;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AmbientZero.Service.Interfaces
 {

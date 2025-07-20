@@ -1,9 +1,8 @@
+using AmbientZero.Api.Auth;
+using AmbientZero.Api.Extensions;
 using AmbientZero.Data;
-using AmbientZero.Data.Interfaces;
-using AmbientZero.Data.Repositories;
-using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Settings;
-using AmbientZero.Service.Services;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,12 +19,8 @@ builder.Services.AddDbContext<AmbientZeroContext>(options => options.UseSqlite("
 builder.Services.Configure<ServicesDependencies>(builder.Configuration.GetSection("ServicesDependencies"));
 builder.Services.Configure<BatteryInfo>(builder.Configuration.GetSection("BatteryInfo"));
 
-builder.Services.AddTransient<IMeasurmentService, MeasurmentService>();
-builder.Services.AddTransient<ISensorService, SensorService>();
-builder.Services.AddTransient<IDeviceInformationService, DeviceInformatonService>();
-builder.Services.AddScoped<IMeasurmentLogRepository, MeasurmentLogRepository>();
-builder.Services.AddScoped<IDeviceInformationRepository, DeviceInformationRepository>();
-builder.Services.AddScoped<ISensorSettingRepository, SensorSettingRepository>();
+builder.Services.AddServices();
+builder.Services.AddRepositories();
 
 builder.Services.AddCors(options =>
 {
@@ -36,8 +31,14 @@ builder.Services.AddCors(options =>
                       });
 });
 
+builder.Services.AddAuthentication("Basic")
+        .AddScheme<AuthSchemeOptions, SessionTokenAuthSchemeHandler>("Basic", null);
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 

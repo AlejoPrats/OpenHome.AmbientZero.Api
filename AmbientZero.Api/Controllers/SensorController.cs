@@ -25,6 +25,23 @@ namespace AmbientZero.Api.Controllers
             return Ok(_sensorService.GetSensorInformation());
         }
 
+        [HttpGet]
+        [Route("GetSensorById")]
+        public async Task<IActionResult> GetSensorById(int id)
+        {
+            var result = _sensorService.GetSensorInformationById(id);
+
+            if (result == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(result);
+            }
+
+        }
+
         [HttpPatch]
         [Route("UpdateSensorName")]
         public async Task<IActionResult> UpdateSensorName(UpdateNameRequest updateNameRequest)

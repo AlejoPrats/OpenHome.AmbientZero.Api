@@ -43,18 +43,14 @@ namespace AmbientZero.Service.Services
             }
             else
             {
-                _deviceInformationRepository.AddNewSensor(deviceInformation);
-            }
-
-            if (!_sensorSettingRepository.SensorSettingExist(measurementRequest.DeviceId))
-            {
                 _sensorSettingRepository.AddSensorSetting(new SensorSetting { DeviceId = measurementRequest.DeviceId, IsLightEnabled = true });
+                _deviceInformationRepository.AddNewSensor(deviceInformation);
             }
 
             var measurementLog = new MeasurementLog()
             {
                 DeviceId = measurementRequest.DeviceId,
-                Date = DateTime.Now,
+                Date = DateTime.UtcNow,
                 Temperature = measurementRequest.Temperature
             };
 

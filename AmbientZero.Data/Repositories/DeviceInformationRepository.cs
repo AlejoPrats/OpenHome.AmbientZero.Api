@@ -30,6 +30,13 @@ namespace AmbientZero.Data.Repositories
                 .ToList();
         }
 
+        public DeviceInformation? GetSensorById(int id)
+        {
+            return _ambientZeroContext.Devices
+                .Include(x => x.Settings)
+                .FirstOrDefault(x => x.Id == id);
+        }
+
         public void UpdateSensorSignal(DeviceInformation deviceInformation)
         {
             _ambientZeroContext.Devices

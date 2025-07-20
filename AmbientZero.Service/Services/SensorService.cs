@@ -1,10 +1,12 @@
 ﻿using AmbientZero.Data.Entities;
 using AmbientZero.Data.Interfaces;
+using AmbientZero.Service.Constants;
 using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Result;
 using AmbientZero.Service.Models.Settings;
 using Microsoft.Extensions.Options;
+using System.Reflection.Metadata.Ecma335;
 
 namespace AmbientZero.Service.Services
 {
@@ -13,21 +15,29 @@ namespace AmbientZero.Service.Services
         private readonly IMeasurmentLogRepository _measurmentRepository;
         private readonly IDeviceInformationRepository _deviceInformationRepository;
         private readonly ISensorSettingRepository _sensorSettingRepository;
+        private readonly IApplicationSettingRepository _applicationSettingRepository;
         private readonly BatteryInfo _batteryInfo;
 
         public SensorService(IMeasurmentLogRepository measurmentLogRepository,
             IDeviceInformationRepository deviceInformationRepository,
             ISensorSettingRepository sensorSettingRepository,
+            IApplicationSettingRepository applicationSettingRepository,
             IOptions<BatteryInfo> batteryInfo)
         {
             _measurmentRepository = measurmentLogRepository;
             _deviceInformationRepository = deviceInformationRepository;
             _sensorSettingRepository = sensorSettingRepository;
+            _applicationSettingRepository = applicationSettingRepository;
             _batteryInfo = batteryInfo?.Value ?? throw new ArgumentNullException(nameof(batteryInfo));
         }
 
         public IEnumerable<SensorInformationResult> GetSensorInformation()
         {
+            var applicationSettings = _applicationSettingRepository.GetApplicationSettings();
+
+            string timeZoneId = applicationSettings.FirstOrDefault(x => x.SettingName == ApplicationSettings.TimeZone)?.SettingValue ?? string.Empty;
+            int temperatureFormat = int.Parse(applicationSettings.FirstOrDefault(x => x.SettingName == ApplicationSettings.TemperatureSetting)?.SettingValue ?? "0");
+
             List<SensorInformationResult> sensors = _deviceInformationRepository
                 .GetAllSensors()
                 .Select(x => new SensorInformationResult()
@@ -51,8 +61,8 @@ namespace AmbientZero.Service.Services
             foreach (var sensor in sensors)
             {
                 var lastFiveResults = _measurmentRepository.GetLastFiveMeasurementsBySensor(sensor.DeviceId).OrderBy(x => x.Date);
-                sensor.LastReadingTime = lastFiveResults.Last().Date;
-                sensor.LastReadingValue = lastFiveResults.Last().Temperature;
+                sensor.LastReadingTime = GetTime(lastFiveResults.Last().Date, timeZoneId);
+                sensor.LastReadingValue = GetTemperature(lastFiveResults.Last().Temperature, temperatureFormat);
 
                 var sensorTemperatureDiffernce = lastFiveResults.First().Temperature - lastFiveResults.Last().Temperature;
 
@@ -68,6 +78,56 @@ namespace AmbientZero.Service.Services
 
             return sensors;
         }
+
+        public SensorInformationResult? GetSensorInformationById(int id)
+        {
+            var applicationSettings = _applicationSettingRepository.GetApplicationSettings();
+
+            string timeZoneId = applicationSettings.FirstOrDefault(x => x.SettingName == ApplicationSettings.TimeZone)?.SettingValue ?? string.Empty;
+            int temperatureFormat = int.Parse(applicationSettings.FirstOrDefault(x => x.SettingName == ApplicationSettings.TemperatureSetting)?.SettingValue ?? "0");
+
+            DeviceInformation? sensor = _deviceInformationRepository.GetSensorById(id);
+            
+            if (sensor == null)
+            {
+                return null;
+            }
+
+            var sensorResult = new SensorInformationResult()
+            {
+                DeviceId = sensor.DeviceId,
+                ADCReading = GetBatteryPercentage(sensor.ADCReading),
+                DeviceVirtualName = sensor.DeviceVirtualName,
+                Id = sensor.Id,
+                IsSignaling = sensor.IsSignaling,
+                SensorSetting = new SensorSettingResult
+                {
+                    DeviceId = sensor.Settings!.DeviceId,
+                    DisableEndTime = sensor.Settings?.DisableEndTime,
+                    DisableStartTime = sensor.Settings?.DisableStartTime,
+                    IsLightEnabled = sensor.Settings?.IsLightEnabled ?? false,
+                    IsScheduled = sensor.Settings?.IsLightOnSchedule ?? false
+                }
+            };
+
+            var lastFiveResults = _measurmentRepository.GetLastFiveMeasurementsBySensor(sensor.DeviceId).OrderBy(x => x.Date);
+            sensorResult.LastReadingTime = GetTime(lastFiveResults.Last().Date, timeZoneId);
+            sensorResult.LastReadingValue = GetTemperature(lastFiveResults.Last().Temperature, temperatureFormat);
+
+            var sensorTemperatureDiffernce = lastFiveResults.First().Temperature - lastFiveResults.Last().Temperature;
+
+            if (sensorTemperatureDiffernce > 0)
+            {
+                sensorResult.TemperatureTendency = "Descending";
+            }
+            else if (sensorTemperatureDiffernce < 0)
+            {
+                sensorResult.TemperatureTendency = "Rising";
+            }
+
+            return sensorResult;
+        }
+
         public void UpdateSensorVirtualName(string deviceId, string virtualName)
         {
             _deviceInformationRepository.UpdateSensorVirtualName(deviceId, virtualName);
@@ -107,12 +167,15 @@ namespace AmbientZero.Service.Services
         public bool ShouldTurnLightOn(string deviceId)
         {
             var settings = _sensorSettingRepository.GetSensorSettingForSensor(deviceId);
+            string timeZoneId = _applicationSettingRepository
+                .GetApplicationSettings()
+                .FirstOrDefault(x => x.SettingName == ApplicationSettings.TimeZone)?.SettingValue ?? string.Empty;
 
             if (settings.IsLightEnabled)
             {
                 if (settings.IsLightOnSchedule)
                 {
-                    var actualTime = TimeOnly.FromDateTime(DateTime.Now);
+                    var actualTime = TimeOnly.FromDateTime(GetTime(DateTime.UtcNow,timeZoneId));
 
                     if (settings.DisableStartTime > settings.DisableEndTime)
                     {
@@ -141,6 +204,24 @@ namespace AmbientZero.Service.Services
 
             return 0;
         }
+
+        private DateTime GetTime(DateTime date, string timeZoneId)
+        {
+            if (string.IsNullOrEmpty(timeZoneId))
+            {
+                return date;
+            }
+
+            return TimeZoneInfo.ConvertTimeBySystemTimeZoneId(date, TimeZoneInfo.Utc.Id, timeZoneId);
+        }
+
+        private float GetTemperature(float temperature, int temperatureSetting) => (Temperature)temperatureSetting switch
+        {
+            Temperature.Celsius => temperature,
+            Temperature.Fahrenheit => (temperature * 1.8f) + 32,
+            Temperature.Kelvin => temperature + 273.15f,
+            _ => temperature
+        };
     }
 
 }

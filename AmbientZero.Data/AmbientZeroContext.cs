@@ -20,6 +20,7 @@ namespace AmbientZero.Data
             DeviceInformationMap.Map(modelBuilder.Entity<DeviceInformation>());
             MeasurementLogMap.Map(modelBuilder.Entity<MeasurementLog>());
             SensorSettingMap.Map(modelBuilder.Entity<SensorSetting>());
+            ApplicationSettingMap.Map(modelBuilder.Entity<ApplicationSetting>());
 
             base.OnModelCreating(modelBuilder);
         }

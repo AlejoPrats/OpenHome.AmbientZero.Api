@@ -1,11 +1,6 @@
 ﻿using AmbientZero.Data.Entities;
 using AmbientZero.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AmbientZero.Data.Repositories
 {
@@ -25,6 +20,19 @@ namespace AmbientZero.Data.Repositories
         public void AddApplicationSetting(ApplicationSetting applicationSettings)
         {
             _ambientZeroContext.Add(applicationSettings);
+            _ambientZeroContext.SaveChanges();
+        }
+
+        public bool ApplicationSettingExists(string settingName)
+        {
+            return _ambientZeroContext.ApplicationSettings.Any(x => x.SettingName == settingName);
+        }
+
+        public void UpdateApplicationSetting(string settingName, string settingValue)
+        {
+            _ambientZeroContext.ApplicationSettings.Where(x => x.SettingName == settingName)
+                .ExecuteUpdate(x =>
+                x.SetProperty(s => s.SettingValue, settingValue));
             _ambientZeroContext.SaveChanges();
         }
 

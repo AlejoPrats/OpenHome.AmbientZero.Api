@@ -9,5 +9,6 @@
         public bool? IsSignaling { get; set; }
         public ICollection<MeasurementLog> Measurements { get; set; }
         public SensorSetting? Settings { get; set; }
+        public string? Version { get; set; }
     }
 }

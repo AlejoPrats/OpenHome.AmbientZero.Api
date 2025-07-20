@@ -11,6 +11,8 @@ namespace AmbientZero.Service.Interfaces
         /// <returns>Sensor information collection</returns>
         IEnumerable<SensorInformationResult> GetSensorInformation();
 
+        SensorInformationResult? GetSensorInformationById(int id);
+
         /// <summary>
         /// Updates the sensor virtual name
         /// </summary>

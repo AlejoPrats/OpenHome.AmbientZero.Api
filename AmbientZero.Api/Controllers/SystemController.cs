@@ -32,5 +32,12 @@ namespace AmbientZero.Api.Controllers
         {
             return _deviceInformationService.GetSSIDName();
         }
+
+        [HttpGet]
+        [Route("GetTimeZones")]
+        public IEnumerable<SystemTimeZone> GetTimeZones()
+        {
+            return TimeZoneInfo.GetSystemTimeZones().Select(x => new SystemTimeZone() { Id = x.Id, Name = x.DisplayName });
+        }
     }
 }

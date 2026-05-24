@@ -87,7 +87,7 @@ namespace AmbientZero.Service.Services
             int temperatureFormat = int.Parse(applicationSettings.FirstOrDefault(x => x.SettingName == ApplicationSettings.TemperatureSetting)?.SettingValue ?? "0");
 
             DeviceInformation? sensor = _deviceInformationRepository.GetSensorById(id);
-            
+
             if (sensor == null)
             {
                 return null;
@@ -175,7 +175,7 @@ namespace AmbientZero.Service.Services
             {
                 if (settings.IsLightOnSchedule)
                 {
-                    var actualTime = TimeOnly.FromDateTime(GetTime(DateTime.UtcNow,timeZoneId));
+                    var actualTime = TimeOnly.FromDateTime(GetTime(DateTime.UtcNow, timeZoneId));
 
                     if (settings.DisableStartTime > settings.DisableEndTime)
                     {
@@ -222,6 +222,17 @@ namespace AmbientZero.Service.Services
             Temperature.Kelvin => temperature + 273.15f,
             _ => temperature
         };
+
+        public void DeleteSensor(int sensorId)
+        {
+            var sensor = _deviceInformationRepository.GetSensorById(sensorId);
+            if (sensor != null)
+            {
+                _deviceInformationRepository.DeleteSensor(sensor.Id);
+                _sensorSettingRepository.DeleteSensorSettings(sensor.Settings.Id);
+                _measurmentRepository.DeleteSensorMeasurements(sensor.DeviceId);
+            }
+        }
     }
 
 }

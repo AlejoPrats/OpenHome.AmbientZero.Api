@@ -37,5 +37,10 @@ namespace AmbientZero.Data.Repositories
                     .SetProperty(s => s.DisableStartTime, sensorSetting.DisableStartTime)
                     .SetProperty(s => s.DisableEndTime, sensorSetting.DisableEndTime));
         }
+
+        public void DeleteSensorSettings(int settingId)
+        {
+            _ambientZeroContext.SensorSettings.Where(x => x.Id == settingId).ExecuteDelete();
+        }
     }
 }

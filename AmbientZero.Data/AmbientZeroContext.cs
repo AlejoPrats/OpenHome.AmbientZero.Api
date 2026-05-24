@@ -1,5 +1,4 @@
 ﻿using AmbientZero.Data.Entities;
-using AmbientZero.Data.Mappings;
 using Microsoft.EntityFrameworkCore;
 
 namespace AmbientZero.Data
@@ -12,15 +11,18 @@ namespace AmbientZero.Data
         public DbSet<ApplicationSetting> ApplicationSettings { get; set; }
         public AmbientZeroContext(DbContextOptions<AmbientZeroContext> options) : base(options)
         {
-            Database.EnsureCreated();
+            if (Database.GetPendingMigrations().Any())
+            {
+                Database.Migrate();
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            DeviceInformationMap.Map(modelBuilder.Entity<DeviceInformation>());
-            MeasurementLogMap.Map(modelBuilder.Entity<MeasurementLog>());
-            SensorSettingMap.Map(modelBuilder.Entity<SensorSetting>());
-            ApplicationSettingMap.Map(modelBuilder.Entity<ApplicationSetting>());
+            DeviceInformation.Map(modelBuilder.Entity<DeviceInformation>());
+            MeasurementLog.Map(modelBuilder.Entity<MeasurementLog>());
+            SensorSetting.Map(modelBuilder.Entity<SensorSetting>());
+            ApplicationSetting.Map(modelBuilder.Entity<ApplicationSetting>());
 
             base.OnModelCreating(modelBuilder);
         }

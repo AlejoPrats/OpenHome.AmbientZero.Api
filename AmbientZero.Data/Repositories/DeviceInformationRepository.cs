@@ -51,5 +51,12 @@ namespace AmbientZero.Data.Repositories
                 .Where(x => x.DeviceId == deviceId)
                 .ExecuteUpdate(x => x.SetProperty(d => d.DeviceVirtualName, virtualName).SetProperty(d => d.IsSignaling, false));
         }
+
+        public void DeleteSensor(int sensorId)
+        {
+            _ambientZeroContext.Devices
+                .Where(x => x.Id == sensorId)
+                .ExecuteDelete();
+        }
     }
 }

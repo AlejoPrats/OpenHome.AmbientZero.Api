@@ -11,6 +11,7 @@ namespace AmbientZero.Service.Services
         private readonly IMeasurmentLogRepository _measurmentRepository;
         private readonly IDeviceInformationRepository _deviceInformationRepository;
         private readonly ISensorSettingRepository _sensorSettingRepository;
+        private const float limitValuesDiferential = 0.2f;
         public MeasurmentService(IMeasurmentLogRepository measurmentLogRepository,
             IDeviceInformationRepository deviceInformationRepository,
             ISensorSettingRepository sensorSettingRepository)
@@ -59,16 +60,32 @@ namespace AmbientZero.Service.Services
             return result;
         }
 
-        public IEnumerable<MeasurementResult> GetDailyTemperature(DateTime dateTime)
+        public ChartResult GetDailyTemperature(DateTime dateTime)
         {
-            return _measurmentRepository.GetDailyMeasurements(dateTime).Select(x => new MeasurementResult
+            var temperatureReadings = _measurmentRepository.GetDailyMeasurements(dateTime);
+            var group = temperatureReadings.GroupBy(x => x.DeviceId);
+            var chartData = new ChartResult();
+            chartData.MinTemperature = (temperatureReadings.Min(x => x.Temperature) - limitValuesDiferential);
+            chartData.MaxTemperature = (temperatureReadings.Max(x => x.Temperature) + limitValuesDiferential);
+            var result = new List<MeasurementResult>();
+
+            foreach (var deviceMeasurements in group)
             {
-                DeviceId = x.DeviceId,
-                Date = x.Date,
-                Id = x.Id,
-                Temperature = x.Temperature,
-                SensorVirtualName = x.DeviceInformation?.DeviceVirtualName
-            });
+                var value = new MeasurementResult();
+                value.DeviceId = deviceMeasurements.FirstOrDefault().DeviceId;
+                value.SensorVirtualName = deviceMeasurements.FirstOrDefault().DeviceInformation.DeviceVirtualName ?? deviceMeasurements.FirstOrDefault().DeviceId;
+                value.TemperatureReadings = deviceMeasurements.Select(x => new DeviceMeasurementResult()
+                {
+                    Id = x.Id,
+                    Date = x.Date,
+                    Temperature = x.Temperature
+                }).ToList();
+                result.Add(value);
+            }
+
+            chartData.Measurements = result;
+
+            return chartData;
         }
     }
 }

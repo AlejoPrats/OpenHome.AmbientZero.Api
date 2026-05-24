@@ -32,5 +32,12 @@ namespace AmbientZero.Service.Interfaces
         /// <param name="deviceId">GUID as string</param>
         /// <returns>boolean indicating the light behavior</returns>
         bool ShouldTurnLightOn(string deviceId);
+
+
+        /// <summary>
+        /// Delete Sensor and all the related information (Settings And Measurements)
+        /// </summary>
+        /// <param name="sensorId">Sensor PK</param>
+        void DeleteSensor(int sensorId);
     }
 }

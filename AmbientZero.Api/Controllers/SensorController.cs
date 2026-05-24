@@ -27,9 +27,9 @@ namespace AmbientZero.Api.Controllers
 
         [HttpGet]
         [Route("GetSensorById")]
-        public async Task<IActionResult> GetSensorById(int id)
+        public async Task<IActionResult> GetSensorById(int sensorId)
         {
-            var result = _sensorService.GetSensorInformationById(id);
+            var result = _sensorService.GetSensorInformationById(sensorId);
 
             if (result == null)
             {
@@ -57,5 +57,14 @@ namespace AmbientZero.Api.Controllers
             _sensorService.UpdateSensorSettings(updateSettingsRequest);
             return Accepted();
         }
+
+        [HttpDelete]
+        [Route("DeleteSensor")]
+        public IActionResult DeleteSensor(int sensorId)
+        {
+            _sensorService.DeleteSensor(sensorId);
+            return NoContent();
+        }
+
     }
 }

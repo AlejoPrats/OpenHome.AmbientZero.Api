@@ -33,5 +33,12 @@ namespace AmbientZero.Data.Repositories
                 .Take(5)
                 .ToList();
         }
+
+        public void DeleteSensorMeasurements(string deviceId)
+        {
+            _ambientZeroContext.Measurements
+                .Where(x => x.DeviceId == deviceId)
+                .ExecuteDelete();
+        }
     }
 }

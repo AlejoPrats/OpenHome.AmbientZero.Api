@@ -7,5 +7,6 @@ namespace AmbientZero.Data.Interfaces
         void AddMeasurmentLog(MeasurementLog measurementLog);
         IEnumerable<MeasurementLog> GetDailyMeasurements(DateTime dateTime);
         IEnumerable<MeasurementLog> GetLastFiveMeasurementsBySensor(string deviceId);
+        void DeleteSensorMeasurements(string deviceId);
     }
 }

@@ -31,7 +31,7 @@ namespace AmbientZero.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<MeasurementResult>> GetDailyMeasurements(DateTime? dateTime)
+        public IActionResult GetDailyMeasurements(DateTime? dateTime)
         {
             dateTime ??= DateTime.Now;
             return Ok(_measurmentService.GetDailyTemperature(dateTime.Value));

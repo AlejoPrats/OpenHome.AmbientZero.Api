@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace AmbientZero.Service.Models.Result
 {
@@ -13,6 +8,6 @@ namespace AmbientZero.Service.Models.Result
         public string ApplicationSettingName { get; set; }
 
         [JsonPropertyName("settingValue")]
-        public string ApplicationSettingValue { get; set;}
+        public string ApplicationSettingValue { get; set; }
     }
 }

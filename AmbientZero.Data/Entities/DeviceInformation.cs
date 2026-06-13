@@ -13,6 +13,7 @@ namespace AmbientZero.Data.Entities
         public ICollection<MeasurementLog> Measurements { get; set; }
         public SensorSetting? Settings { get; set; }
         public string? Version { get; set; }
+        public bool IsMigrated { get; set; }
 
         internal static void Map(EntityTypeBuilder<DeviceInformation> entityBuilder)
         {
@@ -22,6 +23,7 @@ namespace AmbientZero.Data.Entities
                 .WithOne(b => b.Sensor)
                 .HasForeignKey<DeviceInformation>(x => x.DeviceId)
                 .HasPrincipalKey<SensorSetting>(x => x.DeviceId);
+            entityBuilder.Property(x => x.IsMigrated).HasDefaultValue(false);
             entityBuilder.ToTable("deviceInformation");
         }
     }

@@ -1,6 +1,6 @@
 ﻿using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models;
-using AmbientZero.Service.Models.Settings;
+using AmbientZero.Service.Models.Options;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Text.Json;
@@ -62,8 +62,6 @@ namespace AmbientZero.Service.Services
 
         public List<string> GetDeviceApplicationLogs(string serviceName)
         {
-            var result = new List<string>();
-
             ProcessStartInfo getAppLogs = new ProcessStartInfo() { FileName = "journalctl", Arguments = $"--unit={serviceName} --lines=30", RedirectStandardOutput = true };
             string commandResult = string.Empty;
 
@@ -75,7 +73,7 @@ namespace AmbientZero.Service.Services
                 proc.WaitForExit();
             }
 
-            result = commandResult.Split(Environment.NewLine).ToList();
+            var result = commandResult.Split(Environment.NewLine).ToList();
 
             return result;
         }

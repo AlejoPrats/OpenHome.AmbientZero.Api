@@ -1,6 +1,7 @@
 ﻿using AmbientZero.Data.Entities;
 using AmbientZero.Data.Interfaces;
 using AmbientZero.Service.Interfaces;
+using AmbientZero.Service.Models.Options;
 using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Result;
 
@@ -16,9 +17,9 @@ namespace AmbientZero.Service.Services
             IDeviceInformationRepository deviceInformationRepository,
             ISensorSettingRepository sensorSettingRepository)
         {
-            _measurmentRepository = measurmentLogRepository;
-            _deviceInformationRepository = deviceInformationRepository;
-            _sensorSettingRepository = sensorSettingRepository;
+            _measurmentRepository = measurmentLogRepository ?? throw new ArgumentNullException(nameof(measurmentLogRepository)); ;
+            _deviceInformationRepository = deviceInformationRepository ?? throw new ArgumentNullException(nameof(deviceInformationRepository)); ;
+            _sensorSettingRepository = sensorSettingRepository ?? throw new ArgumentNullException(nameof(sensorSettingRepository)); ;
         }
 
         public AddMeasurementResult AddNewMeasurement(MeasurementRequest measurementRequest)
@@ -65,8 +66,12 @@ namespace AmbientZero.Service.Services
             var temperatureReadings = _measurmentRepository.GetDailyMeasurements(dateTime);
             var group = temperatureReadings.GroupBy(x => x.DeviceId);
             var chartData = new ChartResult();
-            chartData.MinTemperature = (temperatureReadings.Min(x => x.Temperature) - limitValuesDiferential);
-            chartData.MaxTemperature = (temperatureReadings.Max(x => x.Temperature) + limitValuesDiferential);
+            if (temperatureReadings.Any())
+            {
+                chartData.MinTemperature = (temperatureReadings.Min(x => x.Temperature) - limitValuesDiferential);
+                chartData.MaxTemperature = (temperatureReadings.Max(x => x.Temperature) + limitValuesDiferential);
+            }
+
             var result = new List<MeasurementResult>();
 
             foreach (var deviceMeasurements in group)

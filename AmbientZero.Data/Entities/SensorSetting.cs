@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AmbientZero.Data.Converters;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AmbientZero.Data.Entities
@@ -9,6 +10,7 @@ namespace AmbientZero.Data.Entities
         public string DeviceId { get; set; }
         public bool IsLightEnabled { get; set; }
         public bool IsLightOnSchedule { get; set; }
+        public string? Color { get; set; }
         public TimeOnly? DisableStartTime { get; set; }
         public TimeOnly? DisableEndTime { get; set; }
         public DeviceInformation Sensor { get; set; }
@@ -18,6 +20,8 @@ namespace AmbientZero.Data.Entities
             entityBuilder.HasKey(x => x.Id);
             entityBuilder.Property(x => x.Id).ValueGeneratedOnAdd();
             entityBuilder.HasOne(x => x.Sensor).WithOne(x => x.Settings);
+            entityBuilder.Property(x => x.DisableStartTime).HasConversion<NullableTimeOnlyConverter>();
+            entityBuilder.Property(x => x.DisableEndTime).HasConversion<NullableTimeOnlyConverter>();
             entityBuilder.ToTable("sensorSetting");
         }
     }

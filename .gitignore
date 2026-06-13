@@ -1,6 +1,7 @@
 AmbientZero.Api/bin/
 AmbientZero.Api/.config/
 AmbientZero.Api/obj/
+AmbientZero.Api/release/
 AmbientZero.Api/Properties/
 AmbientZero.Data/bin/
 AmbientZero.Data/obj/
@@ -11,3 +12,6 @@ AmbientZero.Api/appsettings.Development.json
 .vs/
 AmbientZero.Api/ambientZero.db-shm
 AmbientZero.Api/ambientZero.db-wal
+/AmbientZero.Api/ambientZero.db2
+/AmbientZero.Api/ambientZero.db-shm
+/AmbientZero.Api/ambientZero.db-wal

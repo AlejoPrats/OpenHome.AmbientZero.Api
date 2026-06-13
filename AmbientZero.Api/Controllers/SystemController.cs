@@ -39,5 +39,7 @@ namespace AmbientZero.Api.Controllers
         {
             return TimeZoneInfo.GetSystemTimeZones().Select(x => new SystemTimeZone() { Id = x.Id, Name = x.DisplayName });
         }
+
+
     }
 }

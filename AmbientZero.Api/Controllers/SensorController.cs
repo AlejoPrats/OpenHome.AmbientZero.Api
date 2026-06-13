@@ -1,5 +1,6 @@
 ﻿using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Request;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AmbientZero.Api.Controllers
@@ -19,6 +20,7 @@ namespace AmbientZero.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "Protected")]
         [Route("GetSensorData")]
         public async Task<IActionResult> GetSensorInformation()
         {
@@ -26,6 +28,7 @@ namespace AmbientZero.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "Protected")]
         [Route("GetSensorById")]
         public async Task<IActionResult> GetSensorById(int sensorId)
         {
@@ -43,6 +46,7 @@ namespace AmbientZero.Api.Controllers
         }
 
         [HttpPatch]
+        [Authorize(Policy = "Protected")]
         [Route("UpdateSensorName")]
         public async Task<IActionResult> UpdateSensorName(UpdateNameRequest updateNameRequest)
         {
@@ -51,6 +55,7 @@ namespace AmbientZero.Api.Controllers
         }
 
         [HttpPatch]
+        [Authorize(Policy = "Protected")]
         [Route("UpdateSensorSettings")]
         public async Task<IActionResult> UpdateSensorSettings(UpdateSettingsRequest updateSettingsRequest)
         {
@@ -59,6 +64,7 @@ namespace AmbientZero.Api.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Policy = "Protected")]
         [Route("DeleteSensor")]
         public IActionResult DeleteSensor(int sensorId)
         {

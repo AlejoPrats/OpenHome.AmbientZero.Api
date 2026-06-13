@@ -1,6 +1,7 @@
 ﻿using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Result;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AmbientZero.Api.Controllers
@@ -23,6 +24,7 @@ namespace AmbientZero.Api.Controllers
         }
 
         [HttpPut]
+        [AllowAnonymous]
         public ActionResult<AddMeasurementResult> AddMeasurement(MeasurementRequest measurementRequest)
         {
             var result = _measurmentService.AddNewMeasurement(measurementRequest);
@@ -31,6 +33,7 @@ namespace AmbientZero.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "Protected")]
         public IActionResult GetDailyMeasurements(DateTime? dateTime)
         {
             dateTime ??= DateTime.Now;

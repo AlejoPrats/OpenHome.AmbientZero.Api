@@ -1,4 +1,5 @@
-﻿using AmbientZero.Data.Entities;
+﻿using AmbientZero.Data.Constants;
+using AmbientZero.Data.Entities;
 using AmbientZero.Data.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,11 @@ namespace AmbientZero.Data.Repositories
         public IEnumerable<ApplicationSetting> GetApplicationSettings()
         {
             return _ambientZeroContext.ApplicationSettings.ToList();
+        }
+
+        public ApplicationSetting? GetApplicationSettingByKey(string key)
+        {
+            return _ambientZeroContext.ApplicationSettings.FirstOrDefault(x => x.SettingName == key);
         }
 
         public void AddApplicationSetting(ApplicationSetting applicationSettings)
@@ -34,6 +40,13 @@ namespace AmbientZero.Data.Repositories
                 .ExecuteUpdate(x =>
                 x.SetProperty(s => s.SettingValue, settingValue));
             _ambientZeroContext.SaveChanges();
+        }
+
+        public IEnumerable<ApplicationSetting>? GetAdvancedApplicationSettings()
+        {
+            return _ambientZeroContext.ApplicationSettings
+                .Where(x => ApplicationSettingsConstants.AdvancedSettings.Contains(x.SettingName))
+                .ToList();
         }
 
         public void UpdateApplicationSetting(ApplicationSetting applicationSetting)

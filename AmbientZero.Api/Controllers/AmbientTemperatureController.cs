@@ -1,6 +1,7 @@
 ﻿using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Result;
+using AmbientZero.Service.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,9 +19,9 @@ namespace AmbientZero.Api.Controllers
             IMeasurmentService measurmentService,
             ISensorService sensorService)
         {
-            _logger = logger;
-            _measurmentService = measurmentService;
-            _sensorService = sensorService;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _measurmentService = measurmentService ?? throw new ArgumentNullException(nameof(measurmentService));
+            _sensorService = sensorService ?? throw new ArgumentNullException(nameof(sensorService));
         }
 
         [HttpPut]

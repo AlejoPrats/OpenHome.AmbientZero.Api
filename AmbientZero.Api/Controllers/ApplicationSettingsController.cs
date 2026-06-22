@@ -1,5 +1,6 @@
 ﻿using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Request;
+using AmbientZero.Service.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,8 +15,8 @@ namespace AmbientZero.Api.Controllers
 
         public ApplicationSettingsController(ILogger<ApplicationSettingsController> logger, IApplicationSettingsService applicationSettingsService)
         {
-            _logger = logger;
-            _applicationSettingsService = applicationSettingsService;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _applicationSettingsService = applicationSettingsService ?? throw new ArgumentNullException(nameof(applicationSettingsService));
         }
 
         [HttpGet]

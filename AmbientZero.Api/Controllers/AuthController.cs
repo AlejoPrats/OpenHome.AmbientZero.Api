@@ -2,6 +2,7 @@
 using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Result;
+using AmbientZero.Service.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,8 +20,8 @@ namespace AmbientZero.Api.Controllers
         public AuthController(IAuthService authService,
             IApplicationSettingsService applicationSettingsService)
         {
-            _authService = authService;
-            _applicationSettingsService = applicationSettingsService;
+            _authService = authService ?? throw new ArgumentNullException(nameof(authService));
+            _applicationSettingsService = applicationSettingsService ?? throw new ArgumentNullException(nameof(applicationSettingsService));
         }
 
         [HttpGet]

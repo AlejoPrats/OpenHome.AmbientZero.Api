@@ -200,11 +200,11 @@ namespace AmbientZero.Service.Services
             }
         }
 
-        private int GetBatteryPercentage(int? batteryLevel, int minBatteryValue, int maxBatteryValue)
+        private static int GetBatteryPercentage(int? batteryLevel, int minBatteryValue, int maxBatteryValue)
         {
             if (batteryLevel.HasValue)
             {
-                return Convert.ToInt32(((batteryLevel.Value - _batteryInfo.MinBatteryValue) * 100) / _batteryInfo.MaxBatteryRelativeValue);
+                return Convert.ToInt32(((batteryLevel.Value - minBatteryValue) * 100) / maxBatteryValue);
             }
 
             return 0;

@@ -99,6 +99,24 @@ namespace AmbientZero.Data.Migrations
                             Id = 11,
                             SettingName = "MinBatteryAdcReading",
                             SettingValue = "14915"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            SettingName = "RootProjectURL",
+                            SettingValue = "https://openhomeproject.com"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            SettingName = "UpdateEndpoint",
+                            SettingValue = "api/Version/GetVersionsByProductId?id="
+                        },
+                        new
+                        {
+                            Id = 14,
+                            SettingName = "RemoteDeviceId",
+                            SettingValue = "419a522b-8c31-4b44-b9a8-980cb29f1492"
                         });
                 });
 

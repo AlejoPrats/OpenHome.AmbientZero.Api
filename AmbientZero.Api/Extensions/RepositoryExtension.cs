@@ -1,4 +1,5 @@
-﻿using AmbientZero.Data.Interfaces;
+﻿using AmbientZero.Data;
+using AmbientZero.Data.Interfaces;
 using AmbientZero.Data.Repositories;
 using AmbientZero.Data.Transactions;
 
@@ -9,6 +10,7 @@ namespace AmbientZero.Api.Extensions
         public static void AddRepositories(this IServiceCollection services)
         {
             services.AddScoped<IApplicationSettingRepository, ApplicationSettingRepository>();
+            services.AddScoped<IApplicationVersionRepository, ApplicationVersionRepository>();
             services.AddScoped<IBackupRepository, BackupRepository>();
             services.AddScoped<IDeviceInformationRepository, DeviceInformationRepository>();
             services.AddScoped<IMeasurmentLogRepository, MeasurmentLogRepository>();
@@ -20,6 +22,7 @@ namespace AmbientZero.Api.Extensions
             //////////////////
             
             services.AddScoped<ITransactionScope, TransactionScope>();
+            services.AddSingleton<IDatabaseInfrastructure, DatabaseInfrastructure>();
         }
     }
 }

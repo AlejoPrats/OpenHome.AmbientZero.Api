@@ -31,7 +31,10 @@ namespace AmbientZero.Data.Entities
                 new ApplicationSetting { Id = 8, SettingName = ApplicationSettingsConstants.CheckForUpdatesEnabled, SettingValue = ApplicationSettingsConstants.CheckForUpdatesEnabledValue },
                 new ApplicationSetting { Id = 9, SettingName = ApplicationSettingsConstants.AutomaticUpdatesEnabled, SettingValue = ApplicationSettingsConstants.AutomaticUpdatesEnabledValue },
                 new ApplicationSetting { Id = 10, SettingName = ApplicationSettingsConstants.MaxBatteryAdcReading, SettingValue = ApplicationSettingsConstants.MaxBatteryAdcReadingValue },
-                new ApplicationSetting { Id = 11, SettingName = ApplicationSettingsConstants.MinBatteryAdcReading, SettingValue = ApplicationSettingsConstants.MinBatteryAdcReadingValue }
+                new ApplicationSetting { Id = 11, SettingName = ApplicationSettingsConstants.MinBatteryAdcReading, SettingValue = ApplicationSettingsConstants.MinBatteryAdcReadingValue },
+                new ApplicationSetting { Id = 12, SettingName = ApplicationSettingsConstants.RootProjectURL, SettingValue = ApplicationSettingsConstants.RootProjectURLValue },
+                new ApplicationSetting { Id = 13, SettingName = ApplicationSettingsConstants.VersionUpdateEndpoint, SettingValue = ApplicationSettingsConstants.VersionUpdateEndpointValue },
+                new ApplicationSetting { Id = 14, SettingName = ApplicationSettingsConstants.RemoteDeviceId, SettingValue = ApplicationSettingsConstants.RemoteDeviceIdValue }
                 );
         }
     }

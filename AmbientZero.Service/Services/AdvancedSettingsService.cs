@@ -1,8 +1,10 @@
 ﻿using AmbientZero.Data.Constants;
 using AmbientZero.Data.Interfaces;
+using AmbientZero.Data.Transactions;
 using AmbientZero.Service.Constants;
 using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Options;
+using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Response;
 using System;
 using System.Collections.Generic;
@@ -15,15 +17,18 @@ namespace AmbientZero.Service.Services
     public class AdvancedSettingsService : IAdvancedSettingsService
     {
         private readonly IApplicationSettingRepository _applicationSettingRepository;
-        public AdvancedSettingsService(IApplicationSettingRepository applicationSettingRepository)
+        private readonly ITransactionScope _transactionScope;
+        public AdvancedSettingsService(IApplicationSettingRepository applicationSettingRepository,
+            ITransactionScope transactionScope)
         {
-            _applicationSettingRepository = applicationSettingRepository ?? throw new ArgumentNullException(nameof(applicationSettingRepository)); ;
+            _applicationSettingRepository = applicationSettingRepository ?? throw new ArgumentNullException(nameof(applicationSettingRepository));
+            _transactionScope = transactionScope ?? throw new ArgumentNullException(nameof(transactionScope));
         }
 
         public AdvancedSettingsResponse? GetAdvancedSettings()
         {
             var advancedSettings = _applicationSettingRepository.GetAdvancedApplicationSettings();
-            
+
             if (advancedSettings is not null)
             {
                 var result = new AdvancedSettingsResponse();
@@ -50,6 +55,24 @@ namespace AmbientZero.Service.Services
             }
 
             return null;
+        }
+
+        public void UpdateGeneralSettings(UpdateGeneralSettingsRequest request)
+        {
+            try
+            {
+                _transactionScope.Execute(() =>
+                {
+                    _applicationSettingRepository.UpdateApplicationSettingTransaction(ApplicationSettingsConstants.CheckForUpdatesEnabled, request.CheckForUpdatesEnabled ? "1" : "0");
+                    _applicationSettingRepository.UpdateApplicationSettingTransaction(ApplicationSettingsConstants.AutomaticUpdatesEnabled, request.AutomaticUpdatesEnabled ? "1" : "0");
+                    _applicationSettingRepository.UpdateApplicationSettingTransaction(ApplicationSettingsConstants.MaxBatteryAdcReading, request.MaxBatteryValue.ToString());
+                    _applicationSettingRepository.UpdateApplicationSettingTransaction(ApplicationSettingsConstants.MinBatteryAdcReading, request.MinBatteryValue.ToString());
+                });
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
     }
 }

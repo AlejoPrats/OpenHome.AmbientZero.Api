@@ -9,7 +9,7 @@ namespace AmbientZero.Data.Repositories
 
         public UserRepository(AmbientZeroContext ambientZeroContext)
         {
-            _ambientZeroContext = ambientZeroContext;
+            _ambientZeroContext = ambientZeroContext ?? throw new ArgumentNullException(nameof(ambientZeroContext));
         }
 
         public User? GetUserByUsername(string username)

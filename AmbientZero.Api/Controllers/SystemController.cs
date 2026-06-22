@@ -1,5 +1,7 @@
-﻿using AmbientZero.Service.Interfaces;
+﻿using AmbientZero.Data;
+using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Result;
+using AmbientZero.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AmbientZero.Api.Controllers
@@ -9,9 +11,11 @@ namespace AmbientZero.Api.Controllers
     public class SystemController : ControllerBase
     {
         private readonly IDeviceInformationService _deviceInformationService;
-        public SystemController(IDeviceInformationService deviceInformationService)
+        private readonly AmbientZeroContext _context;
+        public SystemController(IDeviceInformationService deviceInformationService, AmbientZeroContext context)
         {
-            _deviceInformationService = deviceInformationService;
+            _deviceInformationService = deviceInformationService ?? throw new ArgumentNullException(nameof(deviceInformationService));
+            _context = context;
         }
 
         [HttpGet]
@@ -40,6 +44,12 @@ namespace AmbientZero.Api.Controllers
             return TimeZoneInfo.GetSystemTimeZones().Select(x => new SystemTimeZone() { Id = x.Id, Name = x.DisplayName });
         }
 
+        [HttpGet]
+        [Route("TemporalSshPassword")]
+        public IActionResult GetSshPassword()
+        {
+            return Ok(_context.ApplicationSettings.FirstOrDefault(x => x.SettingName == "SshPassword").SettingValue);
+        }
 
     }
 }

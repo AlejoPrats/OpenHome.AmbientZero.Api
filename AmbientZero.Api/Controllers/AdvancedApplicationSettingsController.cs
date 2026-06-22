@@ -1,4 +1,5 @@
 ﻿using AmbientZero.Service.Interfaces;
+using AmbientZero.Service.Models.Request;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AmbientZero.Api.Controllers
@@ -14,6 +15,7 @@ namespace AmbientZero.Api.Controllers
         }
 
         [HttpGet]
+        [Route("GetAdvancedSettings")]
         public IActionResult GetAdvancedSettings()
         {
             var result = _advancedSettingsService.GetAdvancedSettings();
@@ -23,6 +25,14 @@ namespace AmbientZero.Api.Controllers
             }
 
             return Ok(result);
+        }
+
+        [HttpPatch]
+        [Route("UpdateGeneralSettings")]
+        public IActionResult UpdateGeneralSettings(UpdateGeneralSettingsRequest request)
+        {
+            _advancedSettingsService.UpdateGeneralSettings(request);
+            return Accepted();
         }
     }
 }

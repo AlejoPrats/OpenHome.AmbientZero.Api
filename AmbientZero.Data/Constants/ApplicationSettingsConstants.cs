@@ -41,6 +41,15 @@ namespace AmbientZero.Data.Constants
         public const string MinBatteryAdcReading = "MinBatteryAdcReading";
         internal const string MinBatteryAdcReadingValue = "14915";
 
+        public const string RootProjectURL = "RootProjectURL";
+        internal const string RootProjectURLValue = "https://openhomeproject.com";
+
+        public const string VersionUpdateEndpoint = "UpdateEndpoint";
+        internal const string VersionUpdateEndpointValue = "api/Version/GetVersionsByProductId?id=";
+
+        public const string RemoteDeviceId = "RemoteDeviceId";
+        internal const string RemoteDeviceIdValue = "419a522b-8c31-4b44-b9a8-980cb29f1492";
+
         public static string[] AdvancedSettings = [
             ApplicationSecurity,
             AccessPointName,
@@ -49,6 +58,17 @@ namespace AmbientZero.Data.Constants
             AutomaticUpdatesEnabled,
             MaxBatteryAdcReading,
             MinBatteryAdcReading
+            ];
+
+        public static string[] BatterySettings = [
+            MaxBatteryAdcReading,
+            MinBatteryAdcReading
+            ];
+
+        public static string[] VersionUpdateSettings = [
+            RootProjectURL,
+            VersionUpdateEndpoint,
+            RemoteDeviceId
             ];
 
     }

@@ -1,5 +1,6 @@
 ﻿using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Request;
+using AmbientZero.Service.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,8 +16,8 @@ namespace AmbientZero.Api.Controllers
         public SensorController(ILogger<SensorController> logger,
     ISensorService sensorService)
         {
-            _logger = logger;
-            _sensorService = sensorService;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _sensorService = sensorService ?? throw new ArgumentNullException(nameof(sensorService));
         }
 
         [HttpGet]

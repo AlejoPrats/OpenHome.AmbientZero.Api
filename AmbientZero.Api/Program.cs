@@ -2,6 +2,7 @@ using AmbientZero.Api.Auth;
 using AmbientZero.Api.Extensions;
 using AmbientZero.Data;
 using AmbientZero.Service.Models.Options;
+using AmbientZero.Service.Modules;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -19,7 +20,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<AmbientZeroContext>(options => options.UseSqlite("Filename=ambientZero.db"));
 
 builder.Services.Configure<ServicesDependencies>(builder.Configuration.GetSection("ServicesDependencies"));
 builder.Services.Configure<BatteryInfo>(builder.Configuration.GetSection("BatteryInfo"));
@@ -27,6 +27,12 @@ builder.Services.Configure<Secrets>(builder.Configuration.GetSection("Secrets"))
 
 builder.Services.AddServices();
 builder.Services.AddRepositories();
+
+using var tempProvider = builder.Services.BuildServiceProvider();
+var startupModule = tempProvider.GetRequiredService<IStartupModule>();
+
+startupModule.AddDbContext(builder.Services);
+
 builder.Services.AddScoped<IAuthorizationHandler, ProtectionHandler>();
 
 builder.Services.AddCors(options =>
@@ -38,44 +44,8 @@ builder.Services.AddCors(options =>
                       });
 });
 
-builder.Services.AddAuthentication(cfg =>
-{
-    cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    cfg.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(x =>
-{
-    x.RequireHttpsMetadata = false;
-    x.SaveToken = false;
-    x.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8
-            .GetBytes(builder.Configuration.GetSection("Secrets:TokenEncryptionKey").Value ?? string.Empty)
-        ),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ClockSkew = TimeSpan.Zero
-    };
-});
-
-builder.Services.AddResponseCompression(options =>
-{
-    options.EnableForHttps = true;
-    options.Providers.Add<GzipCompressionProvider>();
-    options.Providers.Add<BrotliCompressionProvider>();
-});
-
-builder.Services.Configure<GzipCompressionProviderOptions>(options =>
-{
-    options.Level = System.IO.Compression.CompressionLevel.Fastest;
-});
-
-builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
-{
-    options.Level = System.IO.Compression.CompressionLevel.Fastest;
-});
+startupModule.AddAuthentication(builder.Services);
+startupModule.SetResponseCompression(builder.Services);
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Protected", policy =>
@@ -96,6 +66,13 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
+
+startupModule.ValidateMigrations(app.Services);
+
+if (args.Contains("--migrate"))
+{    
+    return;
+}
 
 app.UseResponseCompression();
 app.UseAuthentication();

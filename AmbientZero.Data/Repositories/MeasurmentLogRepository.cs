@@ -9,7 +9,7 @@ namespace AmbientZero.Data.Repositories
         private readonly AmbientZeroContext _ambientZeroContext;
         public MeasurmentLogRepository(AmbientZeroContext ambientZeroContext)
         {
-            _ambientZeroContext = ambientZeroContext;
+            _ambientZeroContext = ambientZeroContext ?? throw new ArgumentNullException(nameof(ambientZeroContext));
         }
 
         public void AddMeasurmentLog(MeasurementLog measurementLog)

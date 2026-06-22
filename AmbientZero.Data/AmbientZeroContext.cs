@@ -1,5 +1,4 @@
-﻿using AmbientZero.Data.Constants;
-using AmbientZero.Data.Entities;
+﻿using AmbientZero.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AmbientZero.Data
@@ -7,15 +6,13 @@ namespace AmbientZero.Data
     public class AmbientZeroContext : DbContext
     {
         public DbSet<ApplicationSetting> ApplicationSettings { get; set; }
+        public DbSet<ApplicationVersion> ApplicationVersions { get; set; }
         public DbSet<DeviceInformation> Devices { get; set; }
         public DbSet<MeasurementLog> Measurements { get; set; }
         public DbSet<SensorSetting> SensorSettings { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<MigrationReference> MigrationReferences { get; set; }
-        public AmbientZeroContext(DbContextOptions<AmbientZeroContext> options) : base(options)
-        {
-            Database.Migrate();
-        }
+        public AmbientZeroContext(DbContextOptions<AmbientZeroContext> options) : base(options){}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

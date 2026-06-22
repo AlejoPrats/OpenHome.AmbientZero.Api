@@ -15,7 +15,7 @@ namespace AmbientZero.Data.Repositories
 
         public BackupRepository(AmbientZeroContext ambientZeroContext)
         {
-            _ambientZeroContext = ambientZeroContext;
+            _ambientZeroContext = ambientZeroContext ?? throw new ArgumentNullException(nameof(ambientZeroContext));
         }
 
         public IEnumerable<DeviceInformation>? GetDeviceInformationById(string[] deviceIds)

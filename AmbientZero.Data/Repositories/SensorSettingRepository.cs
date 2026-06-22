@@ -9,7 +9,7 @@ namespace AmbientZero.Data.Repositories
         private readonly AmbientZeroContext _ambientZeroContext;
         public SensorSettingRepository(AmbientZeroContext ambientZeroContext)
         {
-            _ambientZeroContext = ambientZeroContext;
+            _ambientZeroContext = ambientZeroContext ?? throw new ArgumentNullException(nameof(ambientZeroContext));
         }
 
         public bool SensorSettingExist(string deviceId)

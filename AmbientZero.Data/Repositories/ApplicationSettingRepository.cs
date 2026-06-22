@@ -10,7 +10,7 @@ namespace AmbientZero.Data.Repositories
         private readonly AmbientZeroContext _ambientZeroContext;
         public ApplicationSettingRepository(AmbientZeroContext ambientZeroContext)
         {
-            _ambientZeroContext = ambientZeroContext;
+            _ambientZeroContext = ambientZeroContext ?? throw new ArgumentNullException(nameof(ambientZeroContext));
         }
 
         public IEnumerable<ApplicationSetting> GetApplicationSettings()
@@ -34,6 +34,14 @@ namespace AmbientZero.Data.Repositories
             return _ambientZeroContext.ApplicationSettings.Any(x => x.SettingName == settingName);
         }
 
+        public IEnumerable<ApplicationSetting>? GetApplicationSettingsCollection(string[] applicationSettings)
+        {
+            return _ambientZeroContext
+                .ApplicationSettings
+                .Where(x => applicationSettings.Contains(x.SettingName))
+                .ToList();
+        }
+
         public void UpdateApplicationSetting(string settingName, string settingValue)
         {
             _ambientZeroContext.ApplicationSettings.Where(x => x.SettingName == settingName)
@@ -41,6 +49,14 @@ namespace AmbientZero.Data.Repositories
                 x.SetProperty(s => s.SettingValue, settingValue));
             _ambientZeroContext.SaveChanges();
         }
+
+        public void UpdateApplicationSettingTransaction(string settingName, string settingValue)
+        {
+            _ambientZeroContext.ApplicationSettings.Where(x => x.SettingName == settingName)
+                .ExecuteUpdate(x =>
+                x.SetProperty(s => s.SettingValue, settingValue));
+        }
+
 
         public IEnumerable<ApplicationSetting>? GetAdvancedApplicationSettings()
         {
@@ -50,6 +66,13 @@ namespace AmbientZero.Data.Repositories
         }
 
         public void UpdateApplicationSetting(ApplicationSetting applicationSetting)
+        {
+            _ambientZeroContext.ApplicationSettings.Where(x => x.Id == applicationSetting.Id)
+                .ExecuteUpdate(x =>
+                x.SetProperty(s => s.SettingValue, applicationSetting.SettingValue));
+        }
+
+        public void UpdateApplicationSettingTransaction(ApplicationSetting applicationSetting)
         {
             _ambientZeroContext.ApplicationSettings.Where(x => x.Id == applicationSetting.Id)
                 .ExecuteUpdate(x =>

@@ -9,5 +9,6 @@ namespace AmbientZero.Service.Models.Options
     public class Secrets
     {
         public string? TokenEncryptionKey { get; set; }
+        public string ConnectionString { get; set; }
     }
 }

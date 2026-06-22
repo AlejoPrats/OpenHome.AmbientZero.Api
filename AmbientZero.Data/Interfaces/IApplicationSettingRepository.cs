@@ -7,9 +7,12 @@ namespace AmbientZero.Data.Interfaces
         IEnumerable<ApplicationSetting> GetApplicationSettings();
         void AddApplicationSetting(ApplicationSetting applicationSettings);
         bool ApplicationSettingExists(string settingName);
+        IEnumerable<ApplicationSetting>? GetApplicationSettingsCollection(string[] applicationSettings);
         ApplicationSetting? GetApplicationSettingByKey(string key);
         IEnumerable<ApplicationSetting>? GetAdvancedApplicationSettings();
         void UpdateApplicationSetting(string settingName, string settingValue);
+        void UpdateApplicationSettingTransaction(string settingName, string settingValue);
         void UpdateApplicationSetting(ApplicationSetting applicationSetting);
+        void UpdateApplicationSettingTransaction(ApplicationSetting applicationSetting);
     }
 }

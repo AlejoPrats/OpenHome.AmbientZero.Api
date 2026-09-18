@@ -6,9 +6,11 @@ using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Options;
 using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Response;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,11 +20,17 @@ namespace AmbientZero.Service.Services
     {
         private readonly IApplicationSettingRepository _applicationSettingRepository;
         private readonly ITransactionScope _transactionScope;
+        private readonly ILogger<AdvancedSettingsService> _logger;
+        private readonly IBashScriptsService _bashScriptsService;
         public AdvancedSettingsService(IApplicationSettingRepository applicationSettingRepository,
-            ITransactionScope transactionScope)
+            ITransactionScope transactionScope,
+            ILogger<AdvancedSettingsService> logger,
+            IBashScriptsService bashScriptsService)
         {
             _applicationSettingRepository = applicationSettingRepository ?? throw new ArgumentNullException(nameof(applicationSettingRepository));
             _transactionScope = transactionScope ?? throw new ArgumentNullException(nameof(transactionScope));
+            _bashScriptsService = bashScriptsService ?? throw new ArgumentNullException(nameof(bashScriptsService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public AdvancedSettingsResponse? GetAdvancedSettings()
@@ -48,7 +56,8 @@ namespace AmbientZero.Service.Services
 
                 result.ApplicationSecurity = new ApplicationSecurityResponse()
                 {
-                    ApplicationSecurity = (Security)int.Parse(advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.ApplicationSecurity).SettingValue!)
+                    ApplicationSecurity = (Security)int.Parse(advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.ApplicationSecurity).SettingValue!),
+                    SshPassword = advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.SshPassword).SettingValue!
                 };
 
                 return result;
@@ -63,16 +72,21 @@ namespace AmbientZero.Service.Services
             {
                 _transactionScope.Execute(() =>
                 {
-                    _applicationSettingRepository.UpdateApplicationSettingTransaction(ApplicationSettingsConstants.CheckForUpdatesEnabled, request.CheckForUpdatesEnabled ? "1" : "0");
-                    _applicationSettingRepository.UpdateApplicationSettingTransaction(ApplicationSettingsConstants.AutomaticUpdatesEnabled, request.AutomaticUpdatesEnabled ? "1" : "0");
-                    _applicationSettingRepository.UpdateApplicationSettingTransaction(ApplicationSettingsConstants.MaxBatteryAdcReading, request.MaxBatteryValue.ToString());
-                    _applicationSettingRepository.UpdateApplicationSettingTransaction(ApplicationSettingsConstants.MinBatteryAdcReading, request.MinBatteryValue.ToString());
+                    _applicationSettingRepository.UpdateApplicationSetting(ApplicationSettingsConstants.CheckForUpdatesEnabled, request.CheckForUpdatesEnabled ? "1" : "0");
+                    _applicationSettingRepository.UpdateApplicationSetting(ApplicationSettingsConstants.AutomaticUpdatesEnabled, request.AutomaticUpdatesEnabled ? "1" : "0");
+                    _applicationSettingRepository.UpdateApplicationSetting(ApplicationSettingsConstants.MaxBatteryAdcReading, request.MaxBatteryValue.ToString());
+                    _applicationSettingRepository.UpdateApplicationSetting(ApplicationSettingsConstants.MinBatteryAdcReading, request.MinBatteryValue.ToString());
                 });
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex,"Error Updating General Settings: {Message}",ex.Message);
             }
+        }
+
+        public async Task UpdateNetworkSettings(UpdateAccessPointRequest request)
+        {
+            await _bashScriptsService.ConfigureAccessPoint(request);
         }
     }
 }

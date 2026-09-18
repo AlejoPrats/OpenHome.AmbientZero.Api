@@ -24,7 +24,7 @@ namespace AmbientZero.Data.Entities
         internal static void Seed(EntityTypeBuilder<User> entityBuilder)
         {
             entityBuilder.HasData(
-                new User { Id = 1, Username = "Admin", Password = "", IsActive = false, CreatedOn = new DateTime(1970, 1, 1) }
+                new User { Id = 1, Username = ApplicationSettingsConstants.AdminUsername, Password = "", IsActive = false, CreatedOn = new DateTime(1970, 1, 1) }
                 );
         }
     }

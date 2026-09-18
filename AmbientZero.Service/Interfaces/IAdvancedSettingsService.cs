@@ -12,5 +12,6 @@ namespace AmbientZero.Service.Interfaces
     {
         AdvancedSettingsResponse? GetAdvancedSettings();
         void UpdateGeneralSettings(UpdateGeneralSettingsRequest request);
+        Task UpdateNetworkSettings(UpdateAccessPointRequest request);
     }
 }

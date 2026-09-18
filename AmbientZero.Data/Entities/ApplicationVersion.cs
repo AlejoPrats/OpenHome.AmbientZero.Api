@@ -12,6 +12,7 @@ namespace AmbientZero.Data.Entities
     public class ApplicationVersion
     {
         public int Id { get; set; }
+        public string ModuleId { get; set; }
         public string ModuleName { get; set; }
         public string LocalVersion { get; set; }
         public string? RemoteVersion { get; set; }
@@ -27,13 +28,27 @@ namespace AmbientZero.Data.Entities
         internal static void Seed(EntityTypeBuilder<ApplicationVersion> entityBuilder)
         {
             entityBuilder.HasData(
-                new ApplicationVersion { Id = 1, ModuleName = ApplicationVersionConstants.API, LocalVersion = "0.0.0" },
-                new ApplicationVersion { Id = 2, ModuleName = ApplicationVersionConstants.PCB, LocalVersion = "0.0.0" },
-                new ApplicationVersion { Id = 3, ModuleName = ApplicationVersionConstants.Web, LocalVersion = "0.0.0" },
-                new ApplicationVersion { Id = 4, ModuleName = ApplicationVersionConstants.SensorCode, LocalVersion = "0.0.0" }
-                );
+                new ApplicationVersion
+                {
+                    Id = 1, ModuleId = ApplicationVersionConstants.APIModuleId,
+                    ModuleName = ApplicationVersionConstants.API, LocalVersion = "0.0.0"
+                },
+                new ApplicationVersion
+                {
+                    Id = 2, ModuleId = ApplicationVersionConstants.PCBModuleId,
+                    ModuleName = ApplicationVersionConstants.PCB, LocalVersion = "0.0.0"
+                },
+                new ApplicationVersion
+                {
+                    Id = 3, ModuleId = ApplicationVersionConstants.WebModuleId,
+                    ModuleName = ApplicationVersionConstants.Web, LocalVersion = "0.0.0"
+                },
+                new ApplicationVersion
+                {
+                    Id = 4, ModuleId = ApplicationVersionConstants.SensorCodeModuleId,
+                    ModuleName = ApplicationVersionConstants.SensorCode, LocalVersion = "0.0.0"
+                }
+            );
         }
     }
-
-
 }

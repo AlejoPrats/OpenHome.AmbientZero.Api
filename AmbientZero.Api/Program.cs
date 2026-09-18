@@ -1,25 +1,20 @@
-using AmbientZero.Api.Auth;
+using AmbientZero.Api.AuthHandler;
 using AmbientZero.Api.Extensions;
-using AmbientZero.Data;
+using AmbientZero.Api.ScheduledTasks;
 using AmbientZero.Service.Models.Options;
 using AmbientZero.Service.Modules;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Coravel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScheduler();
 
 builder.Services.Configure<ServicesDependencies>(builder.Configuration.GetSection("ServicesDependencies"));
 builder.Services.Configure<BatteryInfo>(builder.Configuration.GetSection("BatteryInfo"));
@@ -27,6 +22,7 @@ builder.Services.Configure<Secrets>(builder.Configuration.GetSection("Secrets"))
 
 builder.Services.AddServices();
 builder.Services.AddRepositories();
+builder.Services.AddScheduledJobs();
 
 using var tempProvider = builder.Services.BuildServiceProvider();
 var startupModule = tempProvider.GetRequiredService<IStartupModule>();
@@ -44,8 +40,13 @@ builder.Services.AddCors(options =>
                       });
 });
 
-startupModule.AddAuthentication(builder.Services);
-startupModule.SetResponseCompression(builder.Services);
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = false;
+});
+
+builder.Services.AddCustomAuthentication(builder.Configuration["Secrets:TokenEncryptionKey"]);
+builder.Services.AddResponseCompression();
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("Protected", policy =>
@@ -70,17 +71,20 @@ var app = builder.Build();
 startupModule.ValidateMigrations(app.Services);
 
 if (args.Contains("--migrate"))
-{    
+{
     return;
 }
 
+app.Services.UseScheduler(scheduler =>
+{
+    scheduler.Schedule<RebootJob>().Daily();
+});
+
 app.UseResponseCompression();
-app.UseAuthentication();
-app.UseAuthorization();
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// Configure the HTTP request pipeline.
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -93,11 +97,9 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
-app.UseAuthorization();
-
 app.UseRateLimiter();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
-
-app.MapFallbackToFile("/index.html");
 
 app.Run();

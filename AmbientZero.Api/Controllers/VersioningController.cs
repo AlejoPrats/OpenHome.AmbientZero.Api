@@ -1,5 +1,7 @@
 ﻿using AmbientZero.Service.Interfaces;
+using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography.X509Certificates;
 
@@ -41,6 +43,31 @@ namespace AmbientZero.Api.Controllers
             }
 
             return Ok(result);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("UpdateModule")]
+        public async Task<IActionResult> UpdateModule(UpdateModuleRequest request)
+        {
+            await _versioningService.UpdateModule(request);
+            return Ok();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("UploadModuleFile")]
+        public async Task<IActionResult> UploadModuleFile(IFormFile file, [FromForm] Guid moduleId)
+        {
+            bool result = await _versioningService.UploadModuleFile(file, moduleId.ToString());
+            if (result)
+            {
+                return Ok();
+            }
+            else
+            {
+                return Problem("Error uploading file");
+            }
         }
     }
 }

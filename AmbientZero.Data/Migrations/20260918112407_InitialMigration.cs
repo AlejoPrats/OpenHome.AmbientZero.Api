@@ -28,6 +28,20 @@ namespace AmbientZero.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "migrationReferenceId",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    OriginalId = table.Column<string>(type: "TEXT", nullable: false),
+                    NewId = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_migrationReferenceId", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "sensorSetting",
                 columns: table => new
                 {
@@ -37,8 +51,8 @@ namespace AmbientZero.Data.Migrations
                     IsLightEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsLightOnSchedule = table.Column<bool>(type: "INTEGER", nullable: false),
                     Color = table.Column<string>(type: "TEXT", nullable: true),
-                    DisableStartTime = table.Column<TimeOnly>(type: "TEXT", nullable: true),
-                    DisableEndTime = table.Column<TimeOnly>(type: "TEXT", nullable: true)
+                    DisableStartTime = table.Column<string>(type: "TEXT", nullable: true),
+                    DisableEndTime = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -61,6 +75,23 @@ namespace AmbientZero.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "version",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ModuleId = table.Column<string>(type: "TEXT", nullable: false),
+                    ModuleName = table.Column<string>(type: "TEXT", nullable: false),
+                    LocalVersion = table.Column<string>(type: "TEXT", nullable: false),
+                    RemoteVersion = table.Column<string>(type: "TEXT", nullable: true),
+                    LastUpdatedOn = table.Column<DateTime>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_version", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -124,13 +155,32 @@ namespace AmbientZero.Data.Migrations
                     { 8, "CheckForUpdatesEnabled", "1" },
                     { 9, "AutomaticUpdatesEnabled", "0" },
                     { 10, "MaxBatteryAdcReading", "36024" },
-                    { 11, "MaxBatteryAdcReading", "14915" }
+                    { 11, "MinBatteryAdcReading", "14915" },
+                    { 12, "RootProjectURL", "https://openhomeproject.com" },
+                    { 13, "UpdateEndpoint", "api/Version/GetVersionsByProductId?id=" },
+                    { 14, "RemoteDeviceId", "419a522b-8c31-4b44-b9a8-980cb29f1492" },
+                    { 15, "IsFirstRunSetup", "1" },
+                    { 16, "DefaultLanguage", "en" },
+                    { 17, "DefaultUnit", "1" },
+                    { 18, "BootTime", "0" },
+                    { 19, "SshPassword", "devpass" }
                 });
 
             migrationBuilder.InsertData(
                 table: "users",
                 columns: new[] { "Id", "CreatedOn", "IsActive", "Password", "UpdatedOn", "Username" },
                 values: new object[] { 1, new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "", null, "Admin" });
+
+            migrationBuilder.InsertData(
+                table: "version",
+                columns: new[] { "Id", "LastUpdatedOn", "LocalVersion", "ModuleId", "ModuleName", "RemoteVersion" },
+                values: new object[,]
+                {
+                    { 1, null, "0.0.0", "19f09be7-36bf-47f9-82ad-19b05a95844e", "API", null },
+                    { 2, null, "0.0.0", "4f3f433b-4716-4006-9e38-5c900d8c0849", "PCB", null },
+                    { 3, null, "0.0.0", "880c421d-75c7-4015-aec7-e9582cf5f64a", "Web", null },
+                    { 4, null, "0.0.0", "c7a09fee-6b02-4c05-9b30-634869e73d65", "Sensor Code", null }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_measurementLog_DeviceId",
@@ -148,7 +198,13 @@ namespace AmbientZero.Data.Migrations
                 name: "measurementLog");
 
             migrationBuilder.DropTable(
+                name: "migrationReferenceId");
+
+            migrationBuilder.DropTable(
                 name: "users");
+
+            migrationBuilder.DropTable(
+                name: "version");
 
             migrationBuilder.DropTable(
                 name: "deviceInformation");

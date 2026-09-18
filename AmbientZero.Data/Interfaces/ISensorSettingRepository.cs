@@ -7,7 +7,7 @@ namespace AmbientZero.Data.Interfaces
         void AddSensorSetting(SensorSetting sensorSetting);
         void UpdaterSensorSetting(SensorSetting sensorSetting);
         bool SensorSettingExist(string deviceId);
-        SensorSetting GetSensorSettingForSensor(string deviceId);
+        SensorSetting? GetSensorSettingForSensor(string deviceId);
         void DeleteSensorSettings(int settingId);
     }
 }

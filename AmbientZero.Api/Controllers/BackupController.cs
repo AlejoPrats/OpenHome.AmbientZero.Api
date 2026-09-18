@@ -17,7 +17,7 @@ namespace AmbientZero.Api.Controllers
         }
 
         [HttpPost]
-        [Route("CreateBackup")]
+        [Route("GenerateBackup")]
         public IActionResult CreateBackup(string[] deviceIds)
         {
             var result = _backupService.GenerateBackupFile(deviceIds);
@@ -32,6 +32,7 @@ namespace AmbientZero.Api.Controllers
         }
 
         [HttpPost]
+        [Route("ImportBackup")]
         public IActionResult ImportBackup(IFormFile backup)
         {
             var result = _backupService.ImportBackup(backup.FileName, backup.OpenReadStream());

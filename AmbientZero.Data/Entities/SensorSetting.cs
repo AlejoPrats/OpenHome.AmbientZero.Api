@@ -11,6 +11,7 @@ namespace AmbientZero.Data.Entities
         public bool IsLightEnabled { get; set; }
         public bool IsLightOnSchedule { get; set; }
         public string? Color { get; set; }
+        public string Version { get; set; }
         public TimeOnly? DisableStartTime { get; set; }
         public TimeOnly? DisableEndTime { get; set; }
         public DeviceInformation Sensor { get; set; }

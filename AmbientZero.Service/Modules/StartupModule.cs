@@ -1,4 +1,5 @@
 ﻿using AmbientZero.Data;
+using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -18,7 +19,8 @@ namespace AmbientZero.Service.Modules
     {
         private readonly IDatabaseInfrastructure _databaseInfrastructure;
         private readonly Secrets _secrets;
-        public StartupModule(IDatabaseInfrastructure databaseInfrastructure, IOptions<Secrets> secrets)
+        public StartupModule(IDatabaseInfrastructure databaseInfrastructure,
+            IOptions<Secrets> secrets)
         {
             _databaseInfrastructure = databaseInfrastructure ?? throw new ArgumentNullException(nameof(databaseInfrastructure));
             _secrets = secrets?.Value ?? throw new ArgumentNullException(nameof(secrets));
@@ -32,51 +34,6 @@ namespace AmbientZero.Service.Modules
         public void ValidateMigrations(IServiceProvider provider)
         {
             _databaseInfrastructure.RunMigrations(provider);
-        }
-
-        public void AddAuthentication(IServiceCollection services)
-        {
-            services.AddAuthentication(cfg =>
-            {
-                cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                cfg.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = false;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8
-                        .GetBytes(_secrets?.TokenEncryptionKey ?? string.Empty)
-                    ),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
-        }
-
-        public void SetResponseCompression(IServiceCollection services)
-        {
-            services.AddResponseCompression(options =>
-            {
-                options.EnableForHttps = true;
-                options.Providers.Add<GzipCompressionProvider>();
-                options.Providers.Add<BrotliCompressionProvider>();
-            });
-
-            services.Configure<GzipCompressionProviderOptions>(options =>
-            {
-                options.Level = System.IO.Compression.CompressionLevel.Fastest;
-            });
-
-            services.Configure<BrotliCompressionProviderOptions>(options =>
-            {
-                options.Level = System.IO.Compression.CompressionLevel.Fastest;
-            });
         }
     }
 }

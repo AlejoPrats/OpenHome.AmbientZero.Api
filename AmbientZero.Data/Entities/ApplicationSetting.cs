@@ -34,7 +34,12 @@ namespace AmbientZero.Data.Entities
                 new ApplicationSetting { Id = 11, SettingName = ApplicationSettingsConstants.MinBatteryAdcReading, SettingValue = ApplicationSettingsConstants.MinBatteryAdcReadingValue },
                 new ApplicationSetting { Id = 12, SettingName = ApplicationSettingsConstants.RootProjectURL, SettingValue = ApplicationSettingsConstants.RootProjectURLValue },
                 new ApplicationSetting { Id = 13, SettingName = ApplicationSettingsConstants.VersionUpdateEndpoint, SettingValue = ApplicationSettingsConstants.VersionUpdateEndpointValue },
-                new ApplicationSetting { Id = 14, SettingName = ApplicationSettingsConstants.RemoteDeviceId, SettingValue = ApplicationSettingsConstants.RemoteDeviceIdValue }
+                new ApplicationSetting { Id = 14, SettingName = ApplicationSettingsConstants.RemoteDeviceId, SettingValue = ApplicationSettingsConstants.RemoteDeviceIdValue },
+                new ApplicationSetting { Id = 15, SettingName = ApplicationSettingsConstants.IsFirstRunSetup, SettingValue = ApplicationSettingsConstants.IsFirstRunSetupValue },
+                new ApplicationSetting { Id = 16, SettingName = ApplicationSettingsConstants.DefaultLanguage, SettingValue = ApplicationSettingsConstants.DefaultLanguageValue },
+                new ApplicationSetting { Id = 17, SettingName = ApplicationSettingsConstants.DefaultUnit, SettingValue = ApplicationSettingsConstants.DefaultUnitValue },
+                new ApplicationSetting { Id = 18, SettingName = ApplicationSettingsConstants.BootTime, SettingValue = ApplicationSettingsConstants.BootTimeDefaultValue },
+                new ApplicationSetting { Id = 19, SettingName = ApplicationSettingsConstants.SshPassword, SettingValue = ApplicationSettingsConstants.SshPasswordValue }
                 );
         }
     }

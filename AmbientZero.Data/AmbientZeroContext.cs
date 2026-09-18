@@ -12,7 +12,7 @@ namespace AmbientZero.Data
         public DbSet<SensorSetting> SensorSettings { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<MigrationReference> MigrationReferences { get; set; }
-        public AmbientZeroContext(DbContextOptions<AmbientZeroContext> options) : base(options){}
+        public AmbientZeroContext(DbContextOptions<AmbientZeroContext> options) : base(options){ }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

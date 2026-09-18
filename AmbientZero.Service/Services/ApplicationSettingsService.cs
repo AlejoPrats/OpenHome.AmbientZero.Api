@@ -1,28 +1,39 @@
 ﻿using AmbientZero.Data.Constants;
 using AmbientZero.Data.Entities;
 using AmbientZero.Data.Interfaces;
+using AmbientZero.Data.Transactions;
 using AmbientZero.Service.Constants;
 using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Options;
 using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Result;
+using Microsoft.Extensions.Logging;
 
 namespace AmbientZero.Service.Services
 {
     public class ApplicationSettingsService : IApplicationSettingsService
     {
         private readonly IApplicationSettingRepository _applicationSettingRepository;
+        private readonly ITransactionScope _transactionScope;
+        private readonly ILogger<ApplicationSettingsService> _logger;
 
-        public ApplicationSettingsService(IApplicationSettingRepository applicationSettingRepository)
+        public ApplicationSettingsService(IApplicationSettingRepository applicationSettingRepository,
+            ITransactionScope transactionScope,
+            ILogger<ApplicationSettingsService> logger)
         {
-            _applicationSettingRepository = applicationSettingRepository ?? throw new ArgumentNullException(nameof(applicationSettingRepository)); 
+            _applicationSettingRepository = applicationSettingRepository ?? throw new ArgumentNullException(nameof(applicationSettingRepository));
+            _transactionScope = transactionScope ?? throw new ArgumentNullException(nameof(transactionScope));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public IEnumerable<ApplicationSettingResult> GetApplicationSettings()
+        public ApplicationSettingResult GetApplicationSettings()
         {
-            return _applicationSettingRepository.GetApplicationSettings()
-                .Select(x => new ApplicationSettingResult() { ApplicationSettingName = x.SettingName, ApplicationSettingValue = x.SettingValue })
-                .ToList();
+            var result = _applicationSettingRepository.GetApplicationSettings();
+            return new ApplicationSettingResult()
+            {
+                TimeZone = result.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.TimeZone).SettingValue!,
+                DisplayUnit = int.Parse(result.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.DefaultUnit).SettingValue!)
+            };
         }
 
         public Security? GetApplicationSecurity()
@@ -37,22 +48,29 @@ namespace AmbientZero.Service.Services
                 return (Security)int.Parse(result.SettingValue!);
             }
         }
-        public void SaveApplicationSettings(ApplicationSettingsRequest[] applicationSettingsRequests)
+
+        public bool SaveApplicationSettings(ApplicationSettingsRequest applicationSettingsRequests)
         {
-            foreach (var applicationSettingsRequest in applicationSettingsRequests)
+            try
             {
-                if (_applicationSettingRepository.ApplicationSettingExists(applicationSettingsRequest.SettingName))
+                _transactionScope.Execute(() =>
                 {
-                    _applicationSettingRepository.UpdateApplicationSetting(applicationSettingsRequest.SettingName, applicationSettingsRequest.SettingValue);
-                }
-                else
-                {
-                    _applicationSettingRepository.AddApplicationSetting(new ApplicationSetting()
+                    if (applicationSettingsRequests.TimeZone != null)
                     {
-                        SettingName = applicationSettingsRequest.SettingName,
-                        SettingValue = applicationSettingsRequest.SettingValue
-                    });
-                }
+                        _applicationSettingRepository.UpdateApplicationSetting(ApplicationSettingsConstants.TimeZone, applicationSettingsRequests.TimeZone);
+                    }
+
+                    if (applicationSettingsRequests.DisplayUnit.HasValue)
+                    {
+                        _applicationSettingRepository.UpdateApplicationSetting(ApplicationSettingsConstants.DefaultUnit, applicationSettingsRequests.DisplayUnit.ToString());
+                    }
+                });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return false;
             }
         }
     }

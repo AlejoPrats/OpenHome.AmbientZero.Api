@@ -15,7 +15,7 @@ namespace AmbientZero.Data.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.31");
 
             modelBuilder.Entity("AmbientZero.Data.Entities.ApplicationSetting", b =>
                 {
@@ -117,6 +117,36 @@ namespace AmbientZero.Data.Migrations
                             Id = 14,
                             SettingName = "RemoteDeviceId",
                             SettingValue = "419a522b-8c31-4b44-b9a8-980cb29f1492"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            SettingName = "IsFirstRunSetup",
+                            SettingValue = "1"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            SettingName = "DefaultLanguage",
+                            SettingValue = "en"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            SettingName = "DefaultUnit",
+                            SettingValue = "1"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            SettingName = "BootTime",
+                            SettingValue = "0"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            SettingName = "SshPassword",
+                            SettingValue = "devpass"
                         });
                 });
 
@@ -130,6 +160,10 @@ namespace AmbientZero.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LocalVersion")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ModuleId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -149,24 +183,28 @@ namespace AmbientZero.Data.Migrations
                         {
                             Id = 1,
                             LocalVersion = "0.0.0",
+                            ModuleId = "19f09be7-36bf-47f9-82ad-19b05a95844e",
                             ModuleName = "API"
                         },
                         new
                         {
                             Id = 2,
                             LocalVersion = "0.0.0",
+                            ModuleId = "4f3f433b-4716-4006-9e38-5c900d8c0849",
                             ModuleName = "PCB"
                         },
                         new
                         {
                             Id = 3,
                             LocalVersion = "0.0.0",
+                            ModuleId = "880c421d-75c7-4015-aec7-e9582cf5f64a",
                             ModuleName = "Web"
                         },
                         new
                         {
                             Id = 4,
                             LocalVersion = "0.0.0",
+                            ModuleId = "c7a09fee-6b02-4c05-9b30-634869e73d65",
                             ModuleName = "Sensor Code"
                         });
                 });
@@ -269,6 +307,10 @@ namespace AmbientZero.Data.Migrations
 
                     b.Property<bool>("IsLightOnSchedule")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 

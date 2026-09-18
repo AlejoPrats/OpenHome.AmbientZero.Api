@@ -10,8 +10,6 @@ namespace AmbientZero.Service.Modules
     public interface IStartupModule
     {
         void AddDbContext(IServiceCollection services);
-        void AddAuthentication(IServiceCollection services);
-        void SetResponseCompression(IServiceCollection services);
         void ValidateMigrations(IServiceProvider services);
     }
 }

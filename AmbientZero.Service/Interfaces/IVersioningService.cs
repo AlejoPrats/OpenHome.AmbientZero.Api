@@ -1,4 +1,6 @@
-﻿using AmbientZero.Service.Models.Response;
+﻿using AmbientZero.Service.Models.Request;
+using AmbientZero.Service.Models.Response;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +13,7 @@ namespace AmbientZero.Service.Interfaces
     {
         Task<IEnumerable<VersioningResponse>?> UpdateRemoteVersion();
         IEnumerable<VersioningResponse>? GetVersions();
+        Task UpdateModule(UpdateModuleRequest request);
+        Task<bool> UploadModuleFile(IFormFile file, string deviceId);
     }
 }

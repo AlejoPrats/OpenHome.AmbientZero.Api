@@ -35,10 +35,10 @@ namespace AmbientZero.Service.Services
 
             var backupData = new BackupModel();
             var idSwitchboard = new IdSwitchboard(devices.Select(x => x.DeviceId).ToArray());
-            var sensorQueryGenerator = new SensorQueryGenerator(devicesIds.Count());
+            var sensorQueryGenerator = new SensorQueryGenerator(devicesIds.Length);
             var sensorSettingsQueryGenerator = new SensorSettingsQueryGenerator(devices.Count());
             var measurementLogQueryGenerator = new MeasurementLogQueryGenerator();
-            var migrationReferenceQueryGenerator = new MigrationReferenceQueryGenerator(deviceIds.Count());
+            var migrationReferenceQueryGenerator = new MigrationReferenceQueryGenerator(deviceIds.Length);
             var measurementsCount = _backupRepository.GetMeasurementsCount(devicesIds);
             var backupFile = new BackupFileWriter(BackupSettings.GeneratedBackupPath, BackupSettings.FileName);
 
@@ -57,14 +57,14 @@ namespace AmbientZero.Service.Services
             }
 
             var pages = (double)measurementsCount / _pageSize;
-            backupFile.WriteMetadata(DateTime.UtcNow, devicesIds.Count(), measurementsCount, (int)Math.Ceiling(pages));
+            backupFile.WriteMetadata(DateTime.UtcNow, devicesIds.Length, measurementsCount, (int)Math.Ceiling(pages));
             backupFile.WriteSection(sensorSettingsQueryGenerator.FinishSqlScript());
             backupFile.WriteSection(sensorQueryGenerator.FinishSqlScript());
 
             for (int i = 0; (_pageSize * i) < measurementsCount; i++)
             {
                 var measurements = _backupRepository.GetMeasurements(devicesIds, (_pageSize * i), _pageSize);
-                measurementLogQueryGenerator.CreateHeader(measurements.Count(), i);
+                measurementLogQueryGenerator.CreateHeader(measurements!.Count(), i);
                 foreach (var measurement in measurements)
                 {
                     measurementLogQueryGenerator.Append(idSwitchboard.Switcharoo(measurement.DeviceId), measurement.Temperature, measurement.Date);
@@ -114,7 +114,7 @@ namespace AmbientZero.Service.Services
                     while (backupFileProcessing.HasMoreBlocks)
                     {
                         var sql = backupFileProcessing.ReadNextBlock();
-                        _backupRepository.ExecuteSqlRaw(sql);
+                        _backupRepository.ExecuteSqlRaw(sql!);
                     }
                 });
             }

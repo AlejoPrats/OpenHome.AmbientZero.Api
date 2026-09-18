@@ -3,6 +3,7 @@ using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Result;
 using AmbientZero.Service.Services;
 using Microsoft.AspNetCore.Mvc;
+using SQLitePCL;
 
 namespace AmbientZero.Api.Controllers
 {
@@ -11,11 +12,16 @@ namespace AmbientZero.Api.Controllers
     public class SystemController : ControllerBase
     {
         private readonly IDeviceInformationService _deviceInformationService;
+        private readonly IBashScriptsService _bashScriptsService;
         private readonly AmbientZeroContext _context;
-        public SystemController(IDeviceInformationService deviceInformationService, AmbientZeroContext context)
+        public SystemController(IDeviceInformationService deviceInformationService, 
+            AmbientZeroContext context,
+            IBashScriptsService bashScriptsService)
         {
             _deviceInformationService = deviceInformationService ?? throw new ArgumentNullException(nameof(deviceInformationService));
+
             _context = context;
+            _bashScriptsService = bashScriptsService;
         }
 
         [HttpGet]
@@ -51,5 +57,27 @@ namespace AmbientZero.Api.Controllers
             return Ok(_context.ApplicationSettings.FirstOrDefault(x => x.SettingName == "SshPassword").SettingValue);
         }
 
+        [HttpGet]
+        [Route("ForceApiUpdate")]
+        public IActionResult ForceApiUpdate()
+        {
+            _bashScriptsService.UpdateApi();
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("ForceWebUpdate")]
+        public IActionResult ForceWebUpdate()
+        {
+            _bashScriptsService.UpdateWeb();
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("Health")]
+        public IActionResult Health()
+        {
+            return Ok();
+        }
     }
 }

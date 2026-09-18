@@ -34,5 +34,13 @@ namespace AmbientZero.Api.Controllers
             _advancedSettingsService.UpdateGeneralSettings(request);
             return Accepted();
         }
+
+        [HttpPatch]
+        [Route("UpdateNetworkSettings")]
+        public async Task<IActionResult> UpdateNetworkSettings(UpdateAccessPointRequest request)
+        {
+            await _advancedSettingsService.UpdateNetworkSettings(request);
+            return Ok();
+        }
     }
 }

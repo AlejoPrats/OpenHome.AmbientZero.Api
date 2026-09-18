@@ -18,11 +18,9 @@ namespace AmbientZero.Data.Repositories
             _ambientZeroContext.SaveChanges();
         }
 
-        public IEnumerable<MeasurementLog> GetDailyMeasurements(DateTime dateTime)
+        public IEnumerable<MeasurementLog> GetDailyMeasurements(DateTime startDateTime, DateTime endDateTime)
         {
-            var startDate = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, 0, 0, 0, 0);
-            var endDate = startDate.AddDays(1).AddTicks(-1);
-            return _ambientZeroContext.Measurements.Where(x => x.Date >= startDate && x.Date <= endDate).Include(x => x.DeviceInformation).ToList();
+            return _ambientZeroContext.Measurements.Where(x => x.Date >= startDateTime && x.Date <= endDateTime).Include(x => x.DeviceInformation).ToList();
         }
 
         public IEnumerable<MeasurementLog> GetLastFiveMeasurementsBySensor(string deviceId)
@@ -31,6 +29,18 @@ namespace AmbientZero.Data.Repositories
                 .Where(x => x.DeviceId == deviceId)
                 .OrderByDescending(x => x.Date)
                 .Take(5)
+                .ToList();
+        }
+
+        public IEnumerable<MeasurementLog> GetLastReadingsFromAllSensors(DateTime cutoff)
+        {
+            return _ambientZeroContext.Measurements
+                .GroupBy(m => m.DeviceId)
+                .Select(g => new MeasurementLog {
+                    DeviceId = g.Key,
+                    Date = g.Max(x => x.Date)
+                })
+                .Where(x => x.Date > cutoff)
                 .ToList();
         }
 

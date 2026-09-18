@@ -6,8 +6,8 @@ namespace AmbientZero.Service.Interfaces
 {
     public interface IApplicationSettingsService
     {
-        IEnumerable<ApplicationSettingResult> GetApplicationSettings();
+        ApplicationSettingResult GetApplicationSettings();
         Security? GetApplicationSecurity();
-        void SaveApplicationSettings(ApplicationSettingsRequest[] applicationSettingsRequests);
+        bool SaveApplicationSettings(ApplicationSettingsRequest applicationSettingsRequests);
     }
 }

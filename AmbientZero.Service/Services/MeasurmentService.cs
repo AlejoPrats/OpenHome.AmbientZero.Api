@@ -1,4 +1,5 @@
-﻿using AmbientZero.Data.Entities;
+﻿using AmbientZero.Data.Constants;
+using AmbientZero.Data.Entities;
 using AmbientZero.Data.Interfaces;
 using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models.Options;
@@ -11,15 +12,22 @@ namespace AmbientZero.Service.Services
     {
         private readonly IMeasurmentLogRepository _measurmentRepository;
         private readonly IDeviceInformationRepository _deviceInformationRepository;
+        private readonly IApplicationSettingRepository _applicationSettingRepository;
         private readonly ISensorSettingRepository _sensorSettingRepository;
+        private readonly ITimeZoneService _timeZoneService;
+
         private const float limitValuesDiferential = 0.2f;
         public MeasurmentService(IMeasurmentLogRepository measurmentLogRepository,
             IDeviceInformationRepository deviceInformationRepository,
-            ISensorSettingRepository sensorSettingRepository)
+            ISensorSettingRepository sensorSettingRepository,
+            IApplicationSettingRepository applicationSettingRepository,
+            ITimeZoneService timeZoneService)
         {
-            _measurmentRepository = measurmentLogRepository ?? throw new ArgumentNullException(nameof(measurmentLogRepository)); ;
-            _deviceInformationRepository = deviceInformationRepository ?? throw new ArgumentNullException(nameof(deviceInformationRepository)); ;
-            _sensorSettingRepository = sensorSettingRepository ?? throw new ArgumentNullException(nameof(sensorSettingRepository)); ;
+            _measurmentRepository = measurmentLogRepository ?? throw new ArgumentNullException(nameof(measurmentLogRepository));
+            _deviceInformationRepository = deviceInformationRepository ?? throw new ArgumentNullException(nameof(deviceInformationRepository));
+            _sensorSettingRepository = sensorSettingRepository ?? throw new ArgumentNullException(nameof(sensorSettingRepository));
+            _applicationSettingRepository = applicationSettingRepository ?? throw new ArgumentNullException(nameof(applicationSettingRepository));
+            _timeZoneService = timeZoneService ?? throw new ArgumentNullException(nameof(timeZoneService));
         }
 
         public AddMeasurementResult AddNewMeasurement(MeasurementRequest measurementRequest)
@@ -36,7 +44,8 @@ namespace AmbientZero.Service.Services
             {
                 DeviceId = measurementRequest.DeviceId,
                 IsSignaling = measurementRequest.IsSignaling,
-                ADCReading = measurementRequest.ADCReading
+                ADCReading = measurementRequest.ADCReading,
+                Version = measurementRequest.Version
             };
 
             if (_deviceInformationRepository.SensorExists(measurementRequest.DeviceId))
@@ -63,7 +72,10 @@ namespace AmbientZero.Service.Services
 
         public ChartResult GetDailyTemperature(DateTime dateTime)
         {
-            var temperatureReadings = _measurmentRepository.GetDailyMeasurements(dateTime);
+            var timeZoneSetting = _applicationSettingRepository.GetApplicationSettingByKey(ApplicationSettingsConstants.TimeZone);
+
+            var dateTimeRange = _timeZoneService.GetSartTimezone(dateTime, timeZoneSetting.SettingValue ?? string.Empty);
+            var temperatureReadings = _measurmentRepository.GetDailyMeasurements(dateTimeRange.DayStart, dateTimeRange.DayEnd);
             var group = temperatureReadings.GroupBy(x => x.DeviceId);
             var chartData = new ChartResult();
             if (temperatureReadings.Any())
@@ -77,14 +89,16 @@ namespace AmbientZero.Service.Services
             foreach (var deviceMeasurements in group)
             {
                 var value = new MeasurementResult();
+
                 value.DeviceId = deviceMeasurements.FirstOrDefault().DeviceId;
                 value.SensorVirtualName = deviceMeasurements.FirstOrDefault().DeviceInformation.DeviceVirtualName ?? deviceMeasurements.FirstOrDefault().DeviceId;
                 value.TemperatureReadings = deviceMeasurements.Select(x => new DeviceMeasurementResult()
                 {
                     Id = x.Id,
-                    Date = x.Date,
+                    Date = _timeZoneService.GetTimeFromTimezone(x.Date, timeZoneSetting.SettingValue ?? string.Empty),
                     Temperature = x.Temperature
                 }).ToList();
+
                 result.Add(value);
             }
 

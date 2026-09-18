@@ -1,6 +1,7 @@
 ﻿using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models;
 using AmbientZero.Service.Models.Options;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Text.Json;
@@ -11,9 +12,12 @@ namespace AmbientZero.Service.Services
     public class DeviceInformatonService : IDeviceInformationService
     {
         private readonly ServicesDependencies _servicesDependencies;
-        public DeviceInformatonService(IOptions<ServicesDependencies> servicesDependencies)
+        private readonly ILogger<DeviceInformatonService> _logger;
+        public DeviceInformatonService(IOptions<ServicesDependencies> servicesDependencies,
+            ILogger<DeviceInformatonService> logger)
         {
             _servicesDependencies = servicesDependencies?.Value ?? throw new ArgumentNullException(nameof(servicesDependencies));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public string GetDeviceIpAdress()
@@ -29,12 +33,29 @@ namespace AmbientZero.Service.Services
                 proc.WaitForExit();
             }
 
-            var addressObject = JsonSerializer.Deserialize<List<AddressObject>>(commandResult);
-            var ip = addressObject
-                .FirstOrDefault(x => x.AdapterStatus == "UP" && x.AdapterName == "wlan1")
-                .AddressInformation
-                .FirstOrDefault(x => x.AddressType == Constants.IPAddressType.IPv4).IpAddress;
-            return ip;
+            List<AddressObject> addressObject;
+            try
+            {
+                addressObject = JsonSerializer.Deserialize<List<AddressObject>>(commandResult)!;
+                if (addressObject is not null && addressObject.Count > 0)
+                {
+                    var ip = addressObject
+                        .FirstOrDefault(x => x.AdapterStatus == "UP" && x.AdapterName == "wlan1")
+                        .AddressInformation
+                        .FirstOrDefault(x => x.AddressType == Constants.IPAddressType.IPv4).IpAddress;
+                    return ip;
+                }
+                else
+                {
+                    _logger.LogError("Error In DeviceInformationService: No IP returned");
+                    return string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error In DeviceInformationService: {Message}", ex.Message);
+                return string.Empty;
+            }
         }
 
         public List<ServiceStatus> GetDeviceServiceStatus()
@@ -54,7 +75,18 @@ namespace AmbientZero.Service.Services
                     proc.WaitForExit();
                 }
 
-                result.Add(JsonSerializer.Deserialize<ServiceStatus>(commandResult));
+                ServiceStatus serviceStatus;
+
+                try
+                {
+                    serviceStatus = JsonSerializer.Deserialize<ServiceStatus>(commandResult)!;
+                    result.Add(serviceStatus);
+                }
+                catch
+                {
+                    continue;
+                }
+
             }
 
             return result;

@@ -10,5 +10,7 @@ namespace AmbientZero.Data.Interfaces
         /// <param name="username">string that represents the user to find</param>
         /// <returns>Returns active user that matches the username</returns>
         User? GetUserByUsername(string username);
+        int UpdatePassword(string username, string password);
+        int ActivateUser(string username);
     }
 }

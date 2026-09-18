@@ -2,7 +2,7 @@
 {
     public class ApplicationSettingsRequest
     {
-        public string SettingName { get; set; }
-        public string SettingValue { get; set; }
+        public string? TimeZone { get; set; }
+        public int? DisplayUnit { get; set; }
     }
 }

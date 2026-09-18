@@ -8,6 +8,8 @@ namespace AmbientZero.Data.Constants
 {
     public class ApplicationSettingsConstants
     {
+        public const string AdminUsername = "Admin";
+
         public const string TimeZone = "TimeZone";
         internal const string TimeZoneValue = "UTC";
 
@@ -50,22 +52,38 @@ namespace AmbientZero.Data.Constants
         public const string RemoteDeviceId = "RemoteDeviceId";
         internal const string RemoteDeviceIdValue = "419a522b-8c31-4b44-b9a8-980cb29f1492";
 
-        public static string[] AdvancedSettings = [
+        public const string IsFirstRunSetup = "IsFirstRunSetup";
+        public const string IsFirstRunSetupValue = "1";
+
+        public const string DefaultLanguage = "DefaultLanguage";
+        public const string DefaultLanguageValue = "en";
+
+        public const string DefaultUnit = "DefaultUnit";
+        public const string DefaultUnitValue = "1";
+
+        public const string BootTime = "BootTime";
+        public const string BootTimeDefaultValue = "0";
+
+        public const string SshPassword = "SshPassword";
+        public const string SshPasswordValue = "devpass";
+
+        public static readonly string[] AdvancedSettings = [
             ApplicationSecurity,
             AccessPointName,
             AccessPointSecurity,
             CheckForUpdatesEnabled,
             AutomaticUpdatesEnabled,
             MaxBatteryAdcReading,
-            MinBatteryAdcReading
+            MinBatteryAdcReading,
+            SshPassword
             ];
 
-        public static string[] BatterySettings = [
+        public static readonly string[] BatterySettings = [
             MaxBatteryAdcReading,
             MinBatteryAdcReading
             ];
 
-        public static string[] VersionUpdateSettings = [
+        public static readonly string[] VersionUpdateSettings = [
             RootProjectURL,
             VersionUpdateEndpoint,
             RemoteDeviceId

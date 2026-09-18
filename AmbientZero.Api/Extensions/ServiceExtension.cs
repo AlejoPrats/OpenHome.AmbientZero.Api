@@ -15,13 +15,23 @@ namespace AmbientZero.Api.Extensions
             services.AddTransient<IBackupService, BackupService>();
             services.AddTransient<IDeviceInformationService, DeviceInformatonService>();
             services.AddTransient<IMeasurmentService, MeasurmentService>();
+            services.AddTransient<IOnboardingService, OnboardingService>();
+            services.AddTransient<ISecurityService, SecurityService>();
             services.AddTransient<ISensorService, SensorService>();
+            services.AddTransient<ISystemService, SystemService>();
             services.AddTransient<IVersioningService, VersioningService>();
+
+            ////////////////////
+            /// CrossCutting ///
+            ////////////////////
+
+            services.AddTransient<IBashScriptsService, BashScriptsService>();
+            services.AddTransient<ITimeZoneService, TimeZoneService>();
 
             ///////////////
             /// Modules ///
             ///////////////
-            
+
             services.AddSingleton<IStartupModule, StartupModule>();
 
         }

@@ -10,5 +10,6 @@ namespace AmbientZero.Service.Models.Response
     public class ApplicationSecurityResponse
     {
         public Security ApplicationSecurity { get; set; }
+        public string SshPassword { get; set; }
     }
 }

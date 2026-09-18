@@ -30,10 +30,16 @@ namespace AmbientZero.Api.Controllers
         [HttpPut]
         [Authorize(Policy = "Protected")]
         [Route("SaveApplicationSettings")]
-        public async Task<IActionResult> SaveSettings(ApplicationSettingsRequest[] applicationSetting)
+        public async Task<IActionResult> SaveSettings(ApplicationSettingsRequest request)
         {
-            _applicationSettingsService.SaveApplicationSettings(applicationSetting);
-            return Accepted();
+            if (_applicationSettingsService.SaveApplicationSettings(request))
+            {
+                return Accepted();
+            }
+            else
+            {
+                return Problem();
+            }
         }
 
     }

@@ -15,3 +15,8 @@ AmbientZero.Api/ambientZero.db-wal
 /AmbientZero.Api/ambientZero.db2
 /AmbientZero.Api/ambientZero.db-shm
 /AmbientZero.Api/ambientZero.db-wal
+/AmbientZero.Api/ambientZero2.db-shm
+/AmbientZero.Api/ambientZero2.db-wal
+/AmbientZero.Api/ambientZero3.db-shm
+/AmbientZero.Api/ambientZero3.db-wal
+.idea/

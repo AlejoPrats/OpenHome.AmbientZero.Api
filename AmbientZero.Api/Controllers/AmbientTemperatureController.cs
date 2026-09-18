@@ -29,7 +29,7 @@ namespace AmbientZero.Api.Controllers
         public ActionResult<AddMeasurementResult> AddMeasurement(MeasurementRequest measurementRequest)
         {
             var result = _measurmentService.AddNewMeasurement(measurementRequest);
-            result.IsLightEnabled = _sensorService.ShouldTurnLightOn(result.DeviceId ?? measurementRequest.DeviceId);
+            result.IsLightEnabled = _sensorService.ShouldTurnLightOn(measurementRequest.DeviceId ?? result.DeviceId);
             return Accepted(result);
         }
 

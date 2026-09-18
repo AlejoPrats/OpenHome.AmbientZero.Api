@@ -8,6 +8,7 @@ namespace AmbientZero.Service.Models.Response
 {
     public class VersioningResponse
     {
+        public string Id { get; set; }
         public string Name { get; set; }
         public string LocalVersion { get; set; }
         public string? RemoteVersion { get; set; }

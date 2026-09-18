@@ -42,41 +42,18 @@ namespace AmbientZero.Data.Repositories
                 .ToList();
         }
 
-        public void UpdateApplicationSetting(string settingName, string settingValue)
+        public int UpdateApplicationSetting(string settingName, string settingValue)
         {
-            _ambientZeroContext.ApplicationSettings.Where(x => x.SettingName == settingName)
-                .ExecuteUpdate(x =>
-                x.SetProperty(s => s.SettingValue, settingValue));
-            _ambientZeroContext.SaveChanges();
-        }
-
-        public void UpdateApplicationSettingTransaction(string settingName, string settingValue)
-        {
-            _ambientZeroContext.ApplicationSettings.Where(x => x.SettingName == settingName)
+            return _ambientZeroContext.ApplicationSettings.Where(x => x.SettingName == settingName)
                 .ExecuteUpdate(x =>
                 x.SetProperty(s => s.SettingValue, settingValue));
         }
-
 
         public IEnumerable<ApplicationSetting>? GetAdvancedApplicationSettings()
         {
             return _ambientZeroContext.ApplicationSettings
                 .Where(x => ApplicationSettingsConstants.AdvancedSettings.Contains(x.SettingName))
                 .ToList();
-        }
-
-        public void UpdateApplicationSetting(ApplicationSetting applicationSetting)
-        {
-            _ambientZeroContext.ApplicationSettings.Where(x => x.Id == applicationSetting.Id)
-                .ExecuteUpdate(x =>
-                x.SetProperty(s => s.SettingValue, applicationSetting.SettingValue));
-        }
-
-        public void UpdateApplicationSettingTransaction(ApplicationSetting applicationSetting)
-        {
-            _ambientZeroContext.ApplicationSettings.Where(x => x.Id == applicationSetting.Id)
-                .ExecuteUpdate(x =>
-                x.SetProperty(s => s.SettingValue, applicationSetting.SettingValue));
         }
     }
 }

@@ -1,42 +1,44 @@
-﻿using AmbientZero.Api.Auth;
-using AmbientZero.Data.Constants;
+﻿using AmbientZero.Data.Constants;
 using AmbientZero.Service.Constants;
 using AmbientZero.Service.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 
-public class ProtectionHandler : AuthorizationHandler<ProtectionRequirement>
+namespace AmbientZero.Api.AuthHandler
 {
-    private readonly IApplicationSettingsService _settings;
-
-    public ProtectionHandler(IApplicationSettingsService settings)
+    public class ProtectionHandler : AuthorizationHandler<ProtectionRequirement>
     {
-        _settings = settings;
-    }
+        private readonly IApplicationSettingsService _settings;
 
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ProtectionRequirement requirement)
-    {
-        var http = (context.Resource as DefaultHttpContext)!;
-
-        var requestProtectionMode = http.Request.Headers["X-Protection-Mode"].FirstOrDefault();
-        var applicationProtectionMode = (Security)int.Parse(_settings.GetApplicationSettings().FirstOrDefault(x => x.ApplicationSettingName == ApplicationSettingsConstants.ApplicationSecurity).ApplicationSettingValue);
-
-        if (applicationProtectionMode == Security.None)
+        public ProtectionHandler(IApplicationSettingsService settings)
         {
-            context.Succeed(requirement);
-            return Task.CompletedTask;
+            _settings = settings;
         }
 
-        if (context.User.Identity?.IsAuthenticated == true)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ProtectionRequirement requirement)
         {
-            context.Succeed(requirement);
-            return Task.CompletedTask;
-        }
+            var http = (context.Resource as DefaultHttpContext)!;
 
-        if (int.TryParse(requestProtectionMode, out var fe) && (int)applicationProtectionMode < fe)
-        {
-            context.Succeed(requirement);
+            var requestProtectionMode = http.Request.Headers["X-Protection-Mode"].FirstOrDefault();
+            var applicationProtectionMode = _settings.GetApplicationSecurity();
+
+            if (applicationProtectionMode == Security.None)
+            {
+                context.Succeed(requirement);
+                return Task.CompletedTask;
+            }
+
+            if (context.User.Identity?.IsAuthenticated == true)
+            {
+                context.Succeed(requirement);
+                return Task.CompletedTask;
+            }
+
+            if (int.TryParse(requestProtectionMode, out var fe) && (int)applicationProtectionMode < fe)
+            {
+                context.Succeed(requirement);
+                return Task.CompletedTask;
+            }
             return Task.CompletedTask;
         }
-        return Task.CompletedTask;
     }
 }

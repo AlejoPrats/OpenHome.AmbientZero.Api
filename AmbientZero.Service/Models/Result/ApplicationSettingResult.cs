@@ -4,10 +4,7 @@ namespace AmbientZero.Service.Models.Result
 {
     public class ApplicationSettingResult
     {
-        [JsonPropertyName("settingName")]
-        public string ApplicationSettingName { get; set; }
-
-        [JsonPropertyName("settingValue")]
-        public string ApplicationSettingValue { get; set; }
+        public string TimeZone { get; set; }
+        public int DisplayUnit { get; set; }
     }
 }

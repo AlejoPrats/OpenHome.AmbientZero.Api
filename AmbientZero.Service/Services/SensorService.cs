@@ -24,10 +24,10 @@ namespace AmbientZero.Service.Services
             IApplicationSettingRepository applicationSettingRepository,
             IOptions<BatteryInfo> batteryInfo)
         {
-            _measurmentRepository = measurmentLogRepository ?? throw new ArgumentNullException(nameof(measurmentLogRepository)); ;
-            _deviceInformationRepository = deviceInformationRepository ?? throw new ArgumentNullException(nameof(deviceInformationRepository)); ;
-            _sensorSettingRepository = sensorSettingRepository ?? throw new ArgumentNullException(nameof(sensorSettingRepository)); ;
-            _applicationSettingRepository = applicationSettingRepository ?? throw new ArgumentNullException(nameof(applicationSettingRepository)); ;
+            _measurmentRepository = measurmentLogRepository ?? throw new ArgumentNullException(nameof(measurmentLogRepository));
+            _deviceInformationRepository = deviceInformationRepository ?? throw new ArgumentNullException(nameof(deviceInformationRepository));
+            _sensorSettingRepository = sensorSettingRepository ?? throw new ArgumentNullException(nameof(sensorSettingRepository));
+            _applicationSettingRepository = applicationSettingRepository ?? throw new ArgumentNullException(nameof(applicationSettingRepository));
             _batteryInfo = batteryInfo?.Value ?? throw new ArgumentNullException(nameof(batteryInfo));
         }
 
@@ -45,7 +45,8 @@ namespace AmbientZero.Service.Services
                 .Select(x => new SensorInformationResult()
                 {
                     DeviceId = x.DeviceId,
-                    ADCReading = GetBatteryPercentage(x.ADCReading, minBatteryValue, maxBatteryValue),
+                    RawADCReading = x.ADCReading,
+                    BatteryPercentage = GetBatteryPercentage(x.ADCReading, minBatteryValue, maxBatteryValue),
                     DeviceVirtualName = x.DeviceVirtualName,
                     Id = x.Id,
                     IsSignaling = x.IsSignaling,
@@ -101,7 +102,7 @@ namespace AmbientZero.Service.Services
             {
                 DeviceId = sensor.DeviceId,
                 RawADCReading = sensor.ADCReading,
-                ADCReading = GetBatteryPercentage(sensor.ADCReading, minBatteryValue, maxBatteryValue),
+                BatteryPercentage = GetBatteryPercentage(sensor.ADCReading, minBatteryValue, maxBatteryValue),
                 DeviceVirtualName = sensor.DeviceVirtualName,
                 Id = sensor.Id,
                 IsSignaling = sensor.IsSignaling,
@@ -204,7 +205,7 @@ namespace AmbientZero.Service.Services
         {
             if (batteryLevel.HasValue)
             {
-                return Convert.ToInt32(((batteryLevel.Value - minBatteryValue) * 100) / maxBatteryValue);
+                return Convert.ToInt32(((batteryLevel.Value - minBatteryValue) * 100) / (maxBatteryValue - minBatteryValue));
             }
 
             return 0;

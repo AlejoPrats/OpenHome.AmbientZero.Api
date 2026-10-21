@@ -1,15 +1,10 @@
 ﻿using AmbientZero.Service.Models;
+using AmbientZero.Service.Models.Result;
 
 namespace AmbientZero.Service.Interfaces
 {
     public interface IDeviceInformationService
     {
-        /// <summary>
-        /// Gets the Local Ip of the device
-        /// </summary>
-        /// <returns>IP assinged by the router</returns>
-        string GetDeviceIpAdress();
-
         /// <summary>
         /// Gets the MQTT port in case is set up reading the mosquito.conf file
         /// </summary>
@@ -17,22 +12,10 @@ namespace AmbientZero.Service.Interfaces
         int GetMQTTPort();
 
         /// <summary>
-        /// Gets the actual temperature of the CPU executing tail on /sys/class/thermal/thermal_zone0/temp
+        /// Gets the actual temperature of the CPU, Available and Free Ram, and how much of the swap has been used
         /// </summary>
         /// <returns>Temperature From Cpu</returns>
-        string GetCpuTemperature();
-
-        /// <summary>
-        /// Gets CPU usage executing the top command and extracting the information available
-        /// </summary>
-        /// <returns>CPU usage percentage</returns>
-        string GetCpuUsage();
-
-        /// <summary>
-        /// Gets the ram usage percentage executeing the free command
-        /// </summary>
-        /// <returns>Ram usage percentage</returns>
-        string GetRamUsage();
+        Task<DeviceStatusResult?> GetDeviceStatus();
 
         /// <summary>
         /// Gets the SSID name to which the device is connected

@@ -27,5 +27,24 @@ namespace AmbientZero.Service.Services
 
             return TimeZoneInfo.ConvertTimeBySystemTimeZoneId(date, TimeZoneInfo.Utc.Id, timeZoneId);
         }
+
+        public DateTime? GetTimeFromTimezone(string? date, string timeZoneId)
+        {
+            if (string.IsNullOrEmpty(date))
+            {
+                return null;
+            }
+
+            DateTime parsedDate;
+
+            if (DateTime.TryParse(date, out parsedDate))
+            {
+                return GetTimeFromTimezone(parsedDate, timeZoneId);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

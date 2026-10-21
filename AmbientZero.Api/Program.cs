@@ -70,10 +70,30 @@ var app = builder.Build();
 
 startupModule.ValidateMigrations(app.Services);
 
-if (args.Contains("--migrate"))
+if (args.Length > 0)
 {
-    return;
+    if (args.Contains("--migrate"))
+    {
+        return;
+    }
+    else if (args.Contains("--import"))
+    {
+        startupModule.ImportBackup(app.Services);
+        return;
+    }
+    else if (args.Contains("--export"))
+    {
+        startupModule.GenerateBackup(app.Services);
+        return;
+    }
+    else
+    {
+        Console.WriteLine("No valid argument found.");
+        Console.WriteLine("Valid arguments include --export, --import and --migrate");
+        return;
+    }
 }
+
 
 app.Services.UseScheduler(scheduler =>
 {

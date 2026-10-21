@@ -16,18 +16,7 @@ namespace AmbientZero.Api.ScheduledTasks
 
         public async Task Invoke()
         {
-            var processStartInfo = new ProcessStartInfo()
-            {
-                FileName = "/usr/bin/sudo",
-                Arguments = "/opt/api/Scripts/reboot.sh",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using var process = Process.Start(processStartInfo);
-            await process.WaitForExitAsync();
+            await _systemService.ScheduleReboot();
         }
     }
 }

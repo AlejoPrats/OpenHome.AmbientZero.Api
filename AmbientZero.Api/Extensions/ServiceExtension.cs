@@ -1,4 +1,5 @@
 ﻿using AmbientZero.Data.Entities;
+using AmbientZero.Service;
 using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Modules;
 using AmbientZero.Service.Services;
@@ -20,6 +21,7 @@ namespace AmbientZero.Api.Extensions
             services.AddTransient<ISensorService, SensorService>();
             services.AddTransient<ISystemService, SystemService>();
             services.AddTransient<IVersioningService, VersioningService>();
+            services.AddTransient<IExecutionModeService, ExecutionModeService>();
 
             ////////////////////
             /// CrossCutting ///

@@ -51,6 +51,8 @@ namespace AmbientZero.Data.Constants
 
         public const string RemoteDeviceId = "RemoteDeviceId";
         internal const string RemoteDeviceIdValue = "419a522b-8c31-4b44-b9a8-980cb29f1492";
+        public const string DeviceName = "DeviceName";
+        internal const string DeviceNameValue = "AmbientZero";
 
         public const string IsFirstRunSetup = "IsFirstRunSetup";
         public const string IsFirstRunSetupValue = "1";
@@ -67,6 +69,8 @@ namespace AmbientZero.Data.Constants
         public const string SshPassword = "SshPassword";
         public const string SshPasswordValue = "devpass";
 
+        public const string LastBackupDate = "LastBackupDate";
+
         public static readonly string[] AdvancedSettings = [
             ApplicationSecurity,
             AccessPointName,
@@ -75,7 +79,8 @@ namespace AmbientZero.Data.Constants
             AutomaticUpdatesEnabled,
             MaxBatteryAdcReading,
             MinBatteryAdcReading,
-            SshPassword
+            SshPassword,
+            LastBackupDate
             ];
 
         public static readonly string[] BatterySettings = [

@@ -1,14 +1,27 @@
-﻿using System.Text.Json.Serialization;
+﻿using AmbientZero.Service.Constants;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using System.Text.Json.Serialization;
 
 namespace AmbientZero.Service.Models
 {
-    internal class AddressObject
+    public class AddressObject
     {
-        [JsonPropertyName("ifname")]
         public string AdapterName { get; set; }
-        [JsonPropertyName("operstate")]
         public string AdapterStatus { get; set; }
-        [JsonPropertyName("addr_info")]
-        public AddressInformation[] AddressInformation { get; set; }
+        public string IpAddress { get; set; }
+        public int Prefixlen { get; set; }
+        public IPAddressType AddressType
+        {
+            get
+            {
+                return Prefixlen switch
+                {
+                    > 0 and <= 32 => IPAddressType.IPv4,
+                    64 => IPAddressType.IPv6,
+                    128 => IPAddressType.IPv6IaNa,
+                    _ => IPAddressType.Unknown
+                };
+            }
+        }
     }
 }

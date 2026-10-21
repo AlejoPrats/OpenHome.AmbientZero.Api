@@ -1,6 +1,7 @@
 #!/bin/bash
+# Modern NetworkManager drop-in handler for application-driven AP updates
 
-HOSTAPD_CONF="/etc/hostapd/hostapd.conf"
+CON_NAME="AmbientZero"
 
 NEW_SSID="$1"
 NEW_CHANNEL="$2"
@@ -26,33 +27,36 @@ if ! [[ "$NEW_COUNTRY" =~ ^[A-Z]{2}$ ]]; then
     exit 1
 fi
 
-echo "Updating hostapd configuration..."
+echo "Updating wireless regulatory domain (Country Code)..."
+# In modern RPi OS, the country code is managed globally by regulatory domains
+sudo iw reg set "$NEW_COUNTRY" || true
 
-# Rebuild hostapd.conf from scratch
-tee "$HOSTAPD_CONF" >/dev/null <<EOF
-country_code=$NEW_COUNTRY
-interface=wlan0
-ssid=$NEW_SSID
-hw_mode=g
-channel=$NEW_CHANNEL
-macaddr_acl=0
-auth_algs=1
-ignore_broadcast_ssid=0
-EOF
+echo "Updating NetworkManager profile '$CON_NAME' settings..."
 
-# Security mode
+# 1. Update basic infrastructure parameters
+sudo nmcli connection modify "$CON_NAME" \
+    802-11-wireless.ssid "$NEW_SSID" \
+    802-11-wireless.channel "$NEW_CHANNEL"
+
+# 2. Update Security Mode Dynamically
 if [[ "$NEW_SECURITY" -eq 1 ]]; then
-    tee -a "$HOSTAPD_CONF" >/dev/null <<EOF
-wpa=2
-wpa_passphrase=$NEW_PASSWORD
-wpa_key_mgmt=WPA-PSK
-rsn_pairwise=CCMP
-EOF
+    echo "Configuring SECURED WPA2 network..."
+    sudo nmcli connection modify "$CON_NAME" \
+        802-11-wireless-security.key-mgmt wpa-psk \
+        802-11-wireless-security.psk "$NEW_PASSWORD" \
+        802-11-wireless-security.proto rsn \
+        802-11-wireless-security.pairwise ccmp \
+        802-11-wireless-security.group ccmp
 else
-    echo "Configuring OPEN network (no WPA2)"
+    echo "Configuring OPEN network (no WPA2)..."
+    # Cleanly strip out all lingering security keys from the profile context
+    sudo nmcli connection modify "$CON_NAME" remove wifi-sec 2>/dev/null || true
+    sudo nmcli connection modify "$CON_NAME" remove 802-1x 2>/dev/null || true
 fi
 
-echo "Restarting hostapd..."
-systemctl restart hostapd
+echo "Reloading profile and recycling interface..."
+sudo nmcli connection reload
+sudo nmcli connection down "$CON_NAME" 2>/dev/null || true
+sudo nmcli connection up "$CON_NAME"
 
 echo "Done."

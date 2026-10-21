@@ -42,7 +42,8 @@ namespace AmbientZero.Data.Repositories
             _ambientZeroContext.Devices
                 .Where(x => x.DeviceId == deviceInformation.DeviceId)
                 .ExecuteUpdate(x => x.SetProperty(d => d.IsSignaling, deviceInformation.IsSignaling)
-                .SetProperty(d => d.ADCReading, deviceInformation.ADCReading));
+                .SetProperty(d => d.ADCReading, deviceInformation.ADCReading)
+                .SetProperty(d => d.Version, deviceInformation.Version));
         }
 
         public void UpdateSensorVirtualName(string deviceId, string virtualName)

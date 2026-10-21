@@ -39,7 +39,9 @@ namespace AmbientZero.Data.Entities
                 new ApplicationSetting { Id = 16, SettingName = ApplicationSettingsConstants.DefaultLanguage, SettingValue = ApplicationSettingsConstants.DefaultLanguageValue },
                 new ApplicationSetting { Id = 17, SettingName = ApplicationSettingsConstants.DefaultUnit, SettingValue = ApplicationSettingsConstants.DefaultUnitValue },
                 new ApplicationSetting { Id = 18, SettingName = ApplicationSettingsConstants.BootTime, SettingValue = ApplicationSettingsConstants.BootTimeDefaultValue },
-                new ApplicationSetting { Id = 19, SettingName = ApplicationSettingsConstants.SshPassword, SettingValue = ApplicationSettingsConstants.SshPasswordValue }
+                new ApplicationSetting { Id = 19, SettingName = ApplicationSettingsConstants.SshPassword, SettingValue = ApplicationSettingsConstants.SshPasswordValue },
+                new ApplicationSetting { Id = 20, SettingName = ApplicationSettingsConstants.LastBackupDate, SettingValue = null },
+                new ApplicationSetting { Id = 21, SettingName = ApplicationSettingsConstants.DeviceName, SettingValue = ApplicationSettingsConstants.DeviceNameValue }
                 );
         }
     }

@@ -18,12 +18,23 @@ namespace AmbientZero.Data.Repositories
             _ambientZeroContext = ambientZeroContext ?? throw new ArgumentNullException(nameof(ambientZeroContext));
         }
 
+        public IEnumerable<DeviceInformation>? GetDevicesInformation()
+        { 
+            return _ambientZeroContext
+                .Devices
+                .Include(s => s.Settings)
+                .AsNoTracking()
+                .ToList();
+        }
+
         public IEnumerable<DeviceInformation>? GetDeviceInformationById(string[] deviceIds)
         {
-            return _ambientZeroContext.Devices
+            return _ambientZeroContext
+                .Devices
+                .Include(s => s.Settings)
                 .AsNoTracking()
-                .Include(x=> x.Settings)
-                .Where(x => deviceIds.Contains(x.DeviceId)).ToList();
+                .Where(x => deviceIds.Contains(x.DeviceId))
+                .ToList();
         }
 
         public IEnumerable<MeasurementLog>? GetMeasurements(string[] deviceIds, int skip, int take)

@@ -2,7 +2,7 @@
 {
     public enum Temperature
     {
-        Celsius = 1,
+        Celsius = 0,
         Fahrenheit,
         Kelvin
     }

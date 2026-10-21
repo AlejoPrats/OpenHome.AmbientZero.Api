@@ -1,10 +1,15 @@
 ﻿using AmbientZero.Data.Constants;
+using AmbientZero.Data.Entities;
 using AmbientZero.Data.Interfaces;
+using AmbientZero.Service.Constants;
 using AmbientZero.Service.Interfaces;
+using AmbientZero.Service.Models;
+using AmbientZero.Service.Models.Result;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AmbientZero.Service.Services
@@ -73,6 +78,35 @@ namespace AmbientZero.Service.Services
             }
 
             return candidate;
+        }
+
+        public async Task<DeviceDescription> GetDeviceInformation()
+        {
+            var deviceDescription = new DeviceDescription();
+
+            deviceDescription.DeviceId = new Guid(_advancedSettingsService.GetApplicationSettingByKey(ApplicationSettingsConstants.RemoteDeviceId).SettingValue!);
+            deviceDescription.DeviceName = _advancedSettingsService.GetApplicationSettingByKey(ApplicationSettingsConstants.DeviceName).SettingValue!;
+            string deviceNetworkInformationJson = await _bashScriptsService.GetNetworkAdapterStatus("wlan1");
+            deviceDescription.NetworkInformation = JsonSerializer.Deserialize<AddressObject>(deviceNetworkInformationJson)!;
+
+            return deviceDescription;
+        }
+
+        public async Task<int> FreeRam(FreeRamMode freeRamMode)
+        {
+            if (freeRamMode == FreeRamMode.Cache)
+            {
+                await _bashScriptsService.FreeRam(freeRamMode);
+                return 0;
+            }
+            else
+            {
+                List<DateTime> sensorLastReadings = _measurmentLogRepository.GetLastReadingsFromAllSensors(DateTime.UtcNow.AddMinutes(-25)).Select(x => x.Date).ToList();
+                var extraShift = TimeSpan.FromMinutes(5);
+                long ticksResult = CalculateSafeRebootTicks(sensorLastReadings, TimeSpan.FromMinutes(20), TimeSpan.Zero, TimeSpan.Zero);
+                await _bashScriptsService.FreeRam(freeRamMode,ticksResult);
+                return TimeSpan.FromTicks(ticksResult).Seconds;
+            }
         }
     }
 }

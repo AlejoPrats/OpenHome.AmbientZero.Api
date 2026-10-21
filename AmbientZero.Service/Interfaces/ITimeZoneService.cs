@@ -11,5 +11,6 @@ namespace AmbientZero.Service.Interfaces
     {
         DateRangeTimezone GetSartTimezone(DateTime date, string timeZoneId);
         DateTime GetTimeFromTimezone(DateTime date, string timeZoneId);
+        DateTime? GetTimeFromTimezone(string? date, string timeZoneId);
     }
 }

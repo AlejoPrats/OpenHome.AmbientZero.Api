@@ -9,7 +9,10 @@ namespace AmbientZero.Service.Interfaces
 {
     public interface IBackupService
     {
-        BackupFileResponse? GenerateBackupFile(string[] deviceIds);
-        BackupImportResponse ImportBackup(string name, Stream file);
+        void GenerateBackup();
+        BackupFileResponse? GetFileStream();
+        bool GenerateBackupFile(string[]? deviceIds = null);
+        bool BackupFileUpload(Stream file);
+        BackupImportResponse ImportBackupFile();
     }
 }

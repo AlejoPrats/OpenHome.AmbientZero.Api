@@ -21,25 +21,19 @@ namespace AmbientZero.Data.Backup
     /// </summary>
     public class BackupFileProcessing :
         BackupFileProcessing.IOpenStage,
-        BackupFileProcessing.IReadStage,
-        BackupFileProcessing.ISaveStage
+        BackupFileProcessing.IReadStage
     {
         public bool HasMoreBlocks => !_reader.EndOfStream;
         private StreamReader _reader;
-        private readonly string _filePath;
         private readonly string _fileLocation;
         private readonly StringBuilder _metadataStringBuilder = new StringBuilder();
         private readonly StringBuilder _queryStringBuilder = new StringBuilder();
 
         #region Fluent Api Interfaces
-        public interface ISaveStage
-        {
-            /// <summary>
-            /// <para>
-            /// Saves the uploaded backup stream to disk. Creates the directory if needed.
-            /// </para>
-            /// </summary>
-            IOpenStage Save(Stream file);
+
+        private BackupFileProcessing(string fileLocation)
+        { 
+            _fileLocation = fileLocation;
         }
 
         public interface IOpenStage
@@ -80,11 +74,7 @@ namespace AmbientZero.Data.Backup
         }
         #endregion
 
-        private BackupFileProcessing(string filePath, string fileName)
-        {
-            _filePath = filePath;
-            _fileLocation = Path.Combine(filePath, fileName);
-        }
+        public static IOpenStage SetFileLocation(string fileLocation) => new BackupFileProcessing(fileLocation);
 
         /// <summary>
         /// <para>
@@ -92,22 +82,6 @@ namespace AmbientZero.Data.Backup
         /// uploaded backup will be stored.
         /// </para>
         /// </summary>
-        public static ISaveStage Create(string filePath, string fileName) => new BackupFileProcessing(filePath, fileName);
-
-        public IOpenStage Save(Stream file)
-        {
-            if (!Directory.Exists(_filePath))
-            {
-                Directory.CreateDirectory(_filePath);
-            }
-
-            using (var stream = new FileStream(_fileLocation, FileMode.Create))
-            {
-                file.CopyTo(stream);
-            }
-
-            return this;
-        }
 
         public IReadStage Open()
         {

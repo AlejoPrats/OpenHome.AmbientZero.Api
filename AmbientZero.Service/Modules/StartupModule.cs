@@ -18,11 +18,14 @@ namespace AmbientZero.Service.Modules
     public class StartupModule : IStartupModule
     {
         private readonly IDatabaseInfrastructure _databaseInfrastructure;
+        private readonly IExecutionModeService _executionModeService;
         private readonly Secrets _secrets;
         public StartupModule(IDatabaseInfrastructure databaseInfrastructure,
+            IExecutionModeService executionModeService,
             IOptions<Secrets> secrets)
         {
             _databaseInfrastructure = databaseInfrastructure ?? throw new ArgumentNullException(nameof(databaseInfrastructure));
+            _executionModeService = executionModeService ?? throw new ArgumentNullException(nameof(executionModeService));
             _secrets = secrets?.Value ?? throw new ArgumentNullException(nameof(secrets));
         }
 
@@ -34,6 +37,16 @@ namespace AmbientZero.Service.Modules
         public void ValidateMigrations(IServiceProvider provider)
         {
             _databaseInfrastructure.RunMigrations(provider);
+        }
+
+        public void GenerateBackup(IServiceProvider provider)
+        { 
+            _executionModeService.GenerateBackup(provider);
+        }
+
+        public void ImportBackup(IServiceProvider provider) 
+        { 
+            _executionModeService.ImportBackup(provider);
         }
     }
 }

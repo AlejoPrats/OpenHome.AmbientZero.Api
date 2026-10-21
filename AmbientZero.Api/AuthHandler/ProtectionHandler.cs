@@ -33,7 +33,7 @@ namespace AmbientZero.Api.AuthHandler
                 return Task.CompletedTask;
             }
 
-            if (int.TryParse(requestProtectionMode, out var fe) && (int)applicationProtectionMode < fe)
+            if (int.TryParse(requestProtectionMode, out var fe) && (int)applicationProtectionMode! < fe)
             {
                 context.Succeed(requirement);
                 return Task.CompletedTask;

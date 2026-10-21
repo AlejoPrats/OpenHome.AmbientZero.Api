@@ -10,9 +10,10 @@ namespace AmbientZero.Service.Constants
 {
     internal static class BackupSettings
     {
-        public static string FileName = $"AmbientZero_Backup_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm")}{FileExtension}";
+        public static string GeneratedBackupFileName = $"AmbientZero_Backup{FileExtension}";
+        public static string ImportedBackupFileName = $"AmbientZero_Import{FileExtension}";
         public const string FileExtension = ".sql";
-        public static string UploadBackupPath = Path.Combine(AppContext.BaseDirectory, "Data", "UploadedBackup");
-        public static string GeneratedBackupPath = Path.Combine(AppContext.BaseDirectory, "Data", "GeneratedBackup");
+        public static string UploadBackupPath = Path.Combine(AppContext.BaseDirectory, "Data", "Import");
+        public static string GeneratedBackupPath = Path.Combine(AppContext.BaseDirectory, "Data", "Backup");
     }
 }

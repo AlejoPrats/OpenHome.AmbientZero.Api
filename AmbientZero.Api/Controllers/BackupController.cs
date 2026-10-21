@@ -2,6 +2,7 @@
 using AmbientZero.Service.Interfaces;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Mime;
 
 namespace AmbientZero.Api.Controllers
 {
@@ -16,18 +17,45 @@ namespace AmbientZero.Api.Controllers
             _backupService = backupService ?? throw new ArgumentNullException(nameof(backupService));
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("GenerateBackup")]
-        public IActionResult CreateBackup(string[] deviceIds)
+        public IActionResult GenerateBackup()
         {
-            var result = _backupService.GenerateBackupFile(deviceIds);
+            _backupService.GenerateBackup();
+            return Ok();
+        }
+
+        [HttpPost]
+        public IActionResult UploadBackupFile(IFormFile file)
+        { 
+            var result = _backupService.BackupFileUpload(file.OpenReadStream());
+
+            if (result == false)
+            {
+                return Problem();
+            }
+
+            return Ok();
+        }
+
+        [HttpGet]
+        [Route("DownloadBackup")]
+        public IActionResult DownloadBackup()
+        {
+            var result = _backupService.GetFileStream();
 
             if (result is null)
             {
                 return NotFound();
             }
 
-            HttpContext.SetFileDownloadHeader(result.Filename);
+            var contentDisposition = new ContentDisposition
+            {
+                FileName = result.Filename,
+                Inline = false
+            };
+
+            Response.Headers.Append("Content-Disposition", contentDisposition.ToString());
             return new FileStreamResult(result.BackupStream, "application/octet-stream");
         }
 
@@ -35,16 +63,8 @@ namespace AmbientZero.Api.Controllers
         [Route("ImportBackup")]
         public IActionResult ImportBackup(IFormFile backup)
         {
-            var result = _backupService.ImportBackup(backup.FileName, backup.OpenReadStream());
-
-            if (result.IsSuccess)
-            {
-                return Ok();
-            }
-            else
-            {
-                return BadRequest(result.ErrorMessage);
-            }
+            _backupService.ImportBackupFile();
+            return Ok();
         }
     }
 }

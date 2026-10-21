@@ -1,9 +1,12 @@
 ﻿using AmbientZero.Data;
+using AmbientZero.Service.Constants;
 using AmbientZero.Service.Interfaces;
+using AmbientZero.Service.Models;
 using AmbientZero.Service.Models.Result;
-using AmbientZero.Service.Services;
 using Microsoft.AspNetCore.Mvc;
-using SQLitePCL;
+using System;
+using System.IO;
+using System.Text.Json;
 
 namespace AmbientZero.Api.Controllers
 {
@@ -12,28 +15,20 @@ namespace AmbientZero.Api.Controllers
     public class SystemController : ControllerBase
     {
         private readonly IDeviceInformationService _deviceInformationService;
-        private readonly IBashScriptsService _bashScriptsService;
-        private readonly AmbientZeroContext _context;
-        public SystemController(IDeviceInformationService deviceInformationService, 
-            AmbientZeroContext context,
-            IBashScriptsService bashScriptsService)
+        private readonly ISystemService _systemService;
+        public SystemController(IDeviceInformationService deviceInformationService,
+            ISystemService systemService)
         {
             _deviceInformationService = deviceInformationService ?? throw new ArgumentNullException(nameof(deviceInformationService));
-
-            _context = context;
-            _bashScriptsService = bashScriptsService;
+            _systemService = systemService ?? throw new ArgumentNullException(nameof(systemService));
         }
 
         [HttpGet]
         [Route("WhoAmI")]
-        public DeviceDescription DeviceDescription()
+        public async Task<IActionResult> DeviceDescription()
         {
-            return new DeviceDescription()
-            {
-                DeviceId = Guid.Parse("0f3da17e-91b7-4e3f-9c8a-43171cf4b007"),
-                DeviceName = "AmbientZero",
-                Ip = _deviceInformationService.GetDeviceIpAdress()
-            };
+            var result = await _systemService.GetDeviceInformation();
+            return Ok(result);
         }
 
         [HttpGet]
@@ -51,26 +46,25 @@ namespace AmbientZero.Api.Controllers
         }
 
         [HttpGet]
-        [Route("TemporalSshPassword")]
-        public IActionResult GetSshPassword()
+        [Route("GetSystemInformation")]
+        public async Task<IActionResult> GetDeviceStatus()
         {
-            return Ok(_context.ApplicationSettings.FirstOrDefault(x => x.SettingName == "SshPassword").SettingValue);
+            var result = await _deviceInformationService.GetDeviceStatus();
+
+            if (result is null)
+            {
+                return Problem();
+            }
+
+            return Ok(result);
         }
 
         [HttpGet]
-        [Route("ForceApiUpdate")]
-        public IActionResult ForceApiUpdate()
+        [Route("RamCleanup")]
+        public async Task<IActionResult> RamCleanup(FreeRamMode freeRamMode)
         {
-            _bashScriptsService.UpdateApi();
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("ForceWebUpdate")]
-        public IActionResult ForceWebUpdate()
-        {
-            _bashScriptsService.UpdateWeb();
-            return Ok();
+            int result = await _systemService.FreeRam(freeRamMode);
+            return Ok(result);
         }
 
         [HttpGet]
@@ -78,6 +72,24 @@ namespace AmbientZero.Api.Controllers
         public IActionResult Health()
         {
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("GetTestJson")]
+        public async Task<IActionResult> GetTestJson()
+        {
+            if (System.IO.File.Exists("/dev/shm/test.json"))
+            {
+                // 3. Read the entire file into a string
+                string fileContent = System.IO.File.ReadAllText("/dev/shm/test.json");
+                var result = JsonSerializer.Deserialize<ProcessProgress>(fileContent);
+                return Ok(result);
+            }
+            else
+            {
+                var result = new ProcessProgress() { Percentage = 0, Status = "Starting" };
+                return Ok(result); 
+            }
         }
     }
 }

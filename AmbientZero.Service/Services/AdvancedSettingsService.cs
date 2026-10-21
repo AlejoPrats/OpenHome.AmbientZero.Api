@@ -22,15 +22,18 @@ namespace AmbientZero.Service.Services
         private readonly ITransactionScope _transactionScope;
         private readonly ILogger<AdvancedSettingsService> _logger;
         private readonly IBashScriptsService _bashScriptsService;
+        private readonly ITimeZoneService _timeZoneService;
         public AdvancedSettingsService(IApplicationSettingRepository applicationSettingRepository,
             ITransactionScope transactionScope,
             ILogger<AdvancedSettingsService> logger,
-            IBashScriptsService bashScriptsService)
+            IBashScriptsService bashScriptsService,
+            ITimeZoneService timeZoneService)
         {
             _applicationSettingRepository = applicationSettingRepository ?? throw new ArgumentNullException(nameof(applicationSettingRepository));
             _transactionScope = transactionScope ?? throw new ArgumentNullException(nameof(transactionScope));
             _bashScriptsService = bashScriptsService ?? throw new ArgumentNullException(nameof(bashScriptsService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _timeZoneService = timeZoneService ?? throw new ArgumentNullException(nameof(timeZoneService));
         }
 
         public AdvancedSettingsResponse? GetAdvancedSettings()
@@ -51,7 +54,10 @@ namespace AmbientZero.Service.Services
                     CheckForUpdatesEnabled = advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.CheckForUpdatesEnabled).SettingValue! != "0",
                     AutomaticUpdatesEnabled = advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.AutomaticUpdatesEnabled).SettingValue! != "0",
                     MaxBatteryValue = int.Parse(advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.MaxBatteryAdcReading).SettingValue!),
-                    MinBatteryValue = int.Parse(advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.MinBatteryAdcReading).SettingValue!)
+                    MinBatteryValue = int.Parse(advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.MinBatteryAdcReading).SettingValue!),
+                    LastBackupDate = null/*_timeZoneService
+                    .GetTimeFromTimezone(advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.LastBackupDate)?.SettingValue,
+                    advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.TimeZone).SettingValue!)*/
                 };
 
                 result.ApplicationSecurity = new ApplicationSecurityResponse()
@@ -80,7 +86,7 @@ namespace AmbientZero.Service.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,"Error Updating General Settings: {Message}",ex.Message);
+                _logger.LogError(ex, "Error Updating General Settings: {Message}", ex.Message);
             }
         }
 

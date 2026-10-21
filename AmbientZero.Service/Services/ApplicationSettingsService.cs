@@ -62,7 +62,7 @@ namespace AmbientZero.Service.Services
 
                     if (applicationSettingsRequests.DisplayUnit.HasValue)
                     {
-                        _applicationSettingRepository.UpdateApplicationSetting(ApplicationSettingsConstants.DefaultUnit, applicationSettingsRequests.DisplayUnit.ToString());
+                        _applicationSettingRepository.UpdateApplicationSetting(ApplicationSettingsConstants.DefaultUnit, applicationSettingsRequests.DisplayUnit.ToString()!);
                     }
                 });
                 return true;

@@ -11,5 +11,7 @@ namespace AmbientZero.Service.Modules
     {
         void AddDbContext(IServiceCollection services);
         void ValidateMigrations(IServiceProvider services);
+        void GenerateBackup(IServiceProvider services);
+        void ImportBackup(IServiceProvider services);
     }
 }

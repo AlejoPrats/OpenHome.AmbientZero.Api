@@ -12,5 +12,6 @@ namespace AmbientZero.Service.Models.Response
         public bool AutomaticUpdatesEnabled { get; set; }
         public int MaxBatteryValue { get; set; }
         public int MinBatteryValue { get; set; }
+        public DateTime? LastBackupDate { get; set; }
     }
 }

@@ -18,6 +18,7 @@ namespace AmbientZero.Data
         {
             ApplicationSetting.Map(modelBuilder.Entity<ApplicationSetting>());
             ApplicationVersion.Map(modelBuilder.Entity<ApplicationVersion>());
+            ChartColor.Map(modelBuilder.Entity<ChartColor>());
             DeviceInformation.Map(modelBuilder.Entity<DeviceInformation>());
             MeasurementLog.Map(modelBuilder.Entity<MeasurementLog>());
             MigrationReference.Map(modelBuilder.Entity<MigrationReference>());
@@ -26,6 +27,7 @@ namespace AmbientZero.Data
 
             ApplicationSetting.Seed(modelBuilder.Entity<ApplicationSetting>());
             ApplicationVersion.Seed(modelBuilder.Entity<ApplicationVersion>());
+            ChartColor.Seed(modelBuilder.Entity<ChartColor>());
             User.Seed(modelBuilder.Entity<User>());
 
             base.OnModelCreating(modelBuilder);

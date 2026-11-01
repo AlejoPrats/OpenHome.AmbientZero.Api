@@ -10,4 +10,4 @@ sudo systemctl stop safe_reboot.timer 2>/dev/null
 sudo systemd-run \
     --unit=safe_reboot \
     --on-active="$SECONDS_UNTIL_REBOOT" \
-    /systemdev/systemctl reboot
+    /bin/systemctl reboot

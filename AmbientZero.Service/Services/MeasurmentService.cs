@@ -92,6 +92,7 @@ namespace AmbientZero.Service.Services
 
                 value.DeviceId = deviceMeasurements.FirstOrDefault().DeviceId;
                 value.SensorVirtualName = deviceMeasurements.FirstOrDefault().DeviceInformation.DeviceVirtualName ?? deviceMeasurements.FirstOrDefault().DeviceId;
+                value.Color = deviceMeasurements.FirstOrDefault()?.DeviceInformation?.Settings?.Color ?? null;
                 value.TemperatureReadings = deviceMeasurements.Select(x => new DeviceMeasurementResult()
                 {
                     Id = x.Id,

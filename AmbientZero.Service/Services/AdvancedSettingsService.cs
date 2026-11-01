@@ -55,9 +55,7 @@ namespace AmbientZero.Service.Services
                     AutomaticUpdatesEnabled = advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.AutomaticUpdatesEnabled).SettingValue! != "0",
                     MaxBatteryValue = int.Parse(advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.MaxBatteryAdcReading).SettingValue!),
                     MinBatteryValue = int.Parse(advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.MinBatteryAdcReading).SettingValue!),
-                    LastBackupDate = null/*_timeZoneService
-                    .GetTimeFromTimezone(advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.LastBackupDate)?.SettingValue,
-                    advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.TimeZone).SettingValue!)*/
+                    LastBackupDate = advancedSettings.FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.LastBackupDate)?.SettingValue
                 };
 
                 result.ApplicationSecurity = new ApplicationSecurityResponse()

@@ -27,7 +27,7 @@ namespace AmbientZero.Api.Controllers
 
         [HttpPost]
         public IActionResult UploadBackupFile(IFormFile file)
-        { 
+        {
             var result = _backupService.BackupFileUpload(file.OpenReadStream());
 
             if (result == false)
@@ -49,14 +49,7 @@ namespace AmbientZero.Api.Controllers
                 return NotFound();
             }
 
-            var contentDisposition = new ContentDisposition
-            {
-                FileName = result.Filename,
-                Inline = false
-            };
-
-            Response.Headers.Append("Content-Disposition", contentDisposition.ToString());
-            return new FileStreamResult(result.BackupStream, "application/octet-stream");
+            return File(result.BackupStream, "application/octet-stream", result.Filename);
         }
 
         [HttpPost]

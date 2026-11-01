@@ -17,14 +17,14 @@ namespace AmbientZero.Service.Services
         private readonly SemaphoreSlim _writeSemaphore = new(1, 1);
         private readonly ILogger<TemporalJsonService<T>> _logger;
 
-        private T? _currentSnapshot;
+        private string _currentSnapshot;
 
         public TemporalJsonService(ILogger<TemporalJsonService<T>> logger)
         {
             _logger = logger;
 
             const string baseDirectory = "/dev/shm";
-            string fileName = typeof(T).Name.ToLower();
+            string fileName = "status";
 
             _activeFilePath = Path.Combine(baseDirectory, $"{fileName}.json");
             _tempFilePath = Path.Combine(baseDirectory, $"{fileName}.json.tmp");
@@ -34,13 +34,13 @@ namespace AmbientZero.Service.Services
         {
             lock (_stateLock)
             {
-                _currentSnapshot = newState;
+                _currentSnapshot = JsonSerializer.Serialize(newState);
             }
         }
 
         public void SaveBackground()
         {
-            T? snapshotToSerialize;
+            string snapshotToSerialize;
 
             lock (_stateLock)
             {
@@ -53,12 +53,11 @@ namespace AmbientZero.Service.Services
                 return;
             }
 
-            // COMPILES SAFELY: Discarding a named async method avoids the Task.Run lambda mess entirely
             _ = ExecuteSaveAsync(snapshotToSerialize);
         }
 
         // Explicitly isolated async flow so exceptions are caught and logged properly
-        private async Task ExecuteSaveAsync(T snapshotToSerialize)
+        private async Task ExecuteSaveAsync(string snapshotToSerialize)
         {
             if (!await _writeSemaphore.WaitAsync(0))
             {
@@ -71,9 +70,9 @@ namespace AmbientZero.Service.Services
                 // Yield control immediately back to the main thread callers
                 await Task.Yield();
 
-                using (var createStream = File.Create(_tempFilePath))
+                using (var writer = new StreamWriter(_tempFilePath, append: false, Encoding.UTF8))
                 {
-                    await JsonSerializer.SerializeAsync(createStream, snapshotToSerialize);
+                    await writer.WriteAsync(snapshotToSerialize);
                 }
 
                 File.Move(_tempFilePath, _activeFilePath, overwrite: true);

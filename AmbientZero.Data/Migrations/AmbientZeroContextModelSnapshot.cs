@@ -147,6 +147,23 @@ namespace AmbientZero.Data.Migrations
                             Id = 19,
                             SettingName = "SshPassword",
                             SettingValue = "devpass"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            SettingName = "LastBackupDate"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            SettingName = "DeviceName",
+                            SettingValue = "AmbientZero"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            SettingName = "AccessPointChannel",
+                            SettingValue = "6"
                         });
                 });
 
@@ -206,6 +223,218 @@ namespace AmbientZero.Data.Migrations
                             LocalVersion = "0.0.0",
                             ModuleId = "c7a09fee-6b02-4c05-9b30-634869e73d65",
                             ModuleName = "Sensor Code"
+                        });
+                });
+
+            modelBuilder.Entity("AmbientZero.Data.Entities.ChartColor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("chartColor", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Color = "#5070dd",
+                            IsUsed = false,
+                            Priority = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Color = "#b6d634",
+                            IsUsed = false,
+                            Priority = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Color = "#505372",
+                            IsUsed = false,
+                            Priority = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Color = "#ff994d",
+                            IsUsed = false,
+                            Priority = 1
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Color = "#0ca8df",
+                            IsUsed = false,
+                            Priority = 1
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Color = "#ffd10a",
+                            IsUsed = false,
+                            Priority = 1
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Color = "#fb628b",
+                            IsUsed = false,
+                            Priority = 1
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Color = "#785db0",
+                            IsUsed = false,
+                            Priority = 1
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Color = "#3fbe95",
+                            IsUsed = false,
+                            Priority = 1
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Color = "#1d3997",
+                            IsUsed = false,
+                            Priority = 2
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Color = "#6f841a",
+                            IsUsed = false,
+                            Priority = 2
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Color = "#303144",
+                            IsUsed = false,
+                            Priority = 2
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Color = "#c75500",
+                            IsUsed = false,
+                            Priority = 2
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Color = "#076485",
+                            IsUsed = false,
+                            Priority = 2
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Color = "#9f8100",
+                            IsUsed = false,
+                            Priority = 2
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Color = "#cc053a",
+                            IsUsed = false,
+                            Priority = 2
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Color = "#46346c",
+                            IsUsed = false,
+                            Priority = 2
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Color = "#257259",
+                            IsUsed = false,
+                            Priority = 2
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Color = "#96a9ea",
+                            IsUsed = false,
+                            Priority = 3
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Color = "#d3e685",
+                            IsUsed = false,
+                            Priority = 3
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Color = "#8f92b0",
+                            IsUsed = false,
+                            Priority = 3
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Color = "#fec194",
+                            IsUsed = false,
+                            Priority = 3
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Color = "#62cff6",
+                            IsUsed = false,
+                            Priority = 3
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Color = "#ffe36c",
+                            IsUsed = false,
+                            Priority = 3
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Color = "#fca0b9",
+                            IsUsed = false,
+                            Priority = 3
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Color = "#ae9dcf",
+                            IsUsed = false,
+                            Priority = 3
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Color = "#8bd8bf",
+                            IsUsed = false,
+                            Priority = 3
                         });
                 });
 
@@ -307,10 +536,6 @@ namespace AmbientZero.Data.Migrations
 
                     b.Property<bool>("IsLightOnSchedule")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Version")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 

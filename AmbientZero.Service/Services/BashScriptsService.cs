@@ -222,13 +222,15 @@ namespace AmbientZero.Service.Services
 
         public void OfflineExecution(string executionType)
         {
+            string scriptPath = "/opt/api/Scripts/import_export.sh";
+
             var psi = new ProcessStartInfo
             {
                 FileName = "/usr/bin/sudo",
                 ArgumentList =
                 {
-                    "nohup",
-                    $"/opt/api/Scripts/import_export.sh",
+                    "/opt/api/Scripts/decoupled_run.sh",
+                    scriptPath,
                     executionType
                 },
                 RedirectStandardOutput = false,

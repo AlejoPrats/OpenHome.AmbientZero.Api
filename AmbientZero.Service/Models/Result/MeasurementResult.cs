@@ -4,6 +4,7 @@
     {
         public string DeviceId { get; set; }
         public string SensorVirtualName { get; set; }
+        public string? Color { get; set; }
         public IEnumerable<DeviceMeasurementResult>? TemperatureReadings { get; set; }
     }
 }

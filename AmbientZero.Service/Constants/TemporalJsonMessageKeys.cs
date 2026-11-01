@@ -10,5 +10,6 @@ namespace AmbientZero.Service.Constants
     {
         public const string TotalRows = "total_rows";
         public const string ProcessedRows = "processed_rows";
+        public const string TotalSensors = "total_sensors";
     }
 }

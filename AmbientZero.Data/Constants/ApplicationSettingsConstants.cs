@@ -71,6 +71,9 @@ namespace AmbientZero.Data.Constants
 
         public const string LastBackupDate = "LastBackupDate";
 
+        public const string AccessPointChannel = "AccessPointChannel";
+        public const string AccessPointChannelValue = "6";
+
         public static readonly string[] AdvancedSettings = [
             ApplicationSecurity,
             AccessPointName,

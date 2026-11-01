@@ -1,4 +1,5 @@
 ﻿using AmbientZero.Data;
+using AmbientZero.Data.Backup;
 using AmbientZero.Service.Constants;
 using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models;
@@ -72,24 +73,6 @@ namespace AmbientZero.Api.Controllers
         public IActionResult Health()
         {
             return Ok();
-        }
-
-        [HttpGet]
-        [Route("GetTestJson")]
-        public async Task<IActionResult> GetTestJson()
-        {
-            if (System.IO.File.Exists("/dev/shm/test.json"))
-            {
-                // 3. Read the entire file into a string
-                string fileContent = System.IO.File.ReadAllText("/dev/shm/test.json");
-                var result = JsonSerializer.Deserialize<ProcessProgress>(fileContent);
-                return Ok(result);
-            }
-            else
-            {
-                var result = new ProcessProgress() { Percentage = 0, Status = "Starting" };
-                return Ok(result); 
-            }
         }
     }
 }

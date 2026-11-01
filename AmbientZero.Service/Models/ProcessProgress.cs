@@ -12,6 +12,6 @@ namespace AmbientZero.Service.Models
         public bool IsSuccess { get; set; }
         public string Status { get; set; }
         public int Percentage { get; set; }
-        public string[][] Message => Messages.Select(kvp => new string[] { kvp.Key, kvp.Value }).ToArray();
+        public string[][] Message => Messages?.Select(kvp => new string[] { kvp.Key, kvp.Value })?.ToArray() ?? Array.Empty<string[]>();
     }
 }

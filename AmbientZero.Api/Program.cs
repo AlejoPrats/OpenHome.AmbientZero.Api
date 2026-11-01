@@ -94,7 +94,6 @@ if (args.Length > 0)
     }
 }
 
-
 app.Services.UseScheduler(scheduler =>
 {
     scheduler.Schedule<RebootJob>().Daily();

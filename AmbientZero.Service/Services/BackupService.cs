@@ -44,7 +44,6 @@ namespace AmbientZero.Service.Services
         public bool GenerateBackupFile(string[]? deviceIds = null)
         {
             IEnumerable<DeviceInformation>? devices;
-
             if (deviceIds == null)
             {
                 devices = _backupRepository.GetDevicesInformation();
@@ -68,7 +67,17 @@ namespace AmbientZero.Service.Services
             var measurementLogQueryGenerator = new MeasurementLogQueryGenerator();
             var migrationReferenceQueryGenerator = new MigrationReferenceQueryGenerator(devices.Count());
             var measurementsCount = _backupRepository.GetMeasurementsCount(devicesIds);
+            var processProgress = new ProcessProgress();
             var backupFile = new BackupFileWriter(BackupSettings.GeneratedBackupPath, BackupSettings.GeneratedBackupFileName);
+            processProgress.Messages = new Dictionary<string, string>
+            {
+                { TemporalJsonMessageKeys.TotalRows, measurementsCount.ToString() },
+                { TemporalJsonMessageKeys.ProcessedRows, "0" },
+                { TemporalJsonMessageKeys.TotalSensors, devices.Count().ToString() }
+            };
+
+            _temporalJsonService.UpdateState(processProgress);
+            _temporalJsonService.SaveBackground();
 
             foreach (var sensor in devices)
             {
@@ -84,8 +93,6 @@ namespace AmbientZero.Service.Services
                     sensor.Settings.IsLightOnSchedule);
             }
 
-            _temporalJsonService.UpdateState(new ProcessProgress() { Percentage = 0, Status = "Processing Backup" });
-
             var pages = (double)measurementsCount / _pageSize;
             backupFile.WriteMetadata(DateTime.UtcNow, devices.Count(), measurementsCount, (int)Math.Ceiling(pages));
             backupFile.WriteSection(sensorSettingsQueryGenerator.FinishSqlScript());
@@ -100,6 +107,10 @@ namespace AmbientZero.Service.Services
                     measurementLogQueryGenerator.Append(idSwitchboard.Switcharoo(measurement.DeviceId), measurement.Temperature, measurement.Date);
                 }
                 backupFile.WriteSection(measurementLogQueryGenerator.FinishSqlScript());
+                processProgress.Messages[TemporalJsonMessageKeys.ProcessedRows] = (_pageSize * i).ToString();
+                processProgress.Percentage = ((_pageSize * i) * 100) / measurementsCount;
+                _temporalJsonService.UpdateState(processProgress);
+                _temporalJsonService.SaveBackground();
             }
 
             backupData.MigrationIds = idSwitchboard.GetMap();
@@ -115,6 +126,11 @@ namespace AmbientZero.Service.Services
 
             _applicationSettingRepository.UpdateApplicationSetting(ApplicationSettingsConstants.LastBackupDate, DateTime.UtcNow.ToString());
 
+            processProgress.Messages[TemporalJsonMessageKeys.ProcessedRows] = measurementsCount.ToString();
+            processProgress.Percentage = 100;
+            _temporalJsonService.UpdateState(processProgress);
+            _temporalJsonService.SaveBackground();
+
             return true;
         }
 
@@ -126,11 +142,13 @@ namespace AmbientZero.Service.Services
             {
                 using (var stream = new FileStream(filePath, FileMode.Open))
                 {
+                    result.BackupStream = new MemoryStream();
                     stream.CopyTo(result.BackupStream);
                 }
 
                 string lastBackupDate = _applicationSettingRepository.GetApplicationSettingByKey(ApplicationSettingsConstants.LastBackupDate)?.SettingValue ?? "unknown";
-                result.Filename = $"{BackupSettings.GeneratedBackupFileName}_{lastBackupDate}";
+                result.Filename = $"{BackupSettings.ImportedBackupName}_{lastBackupDate}{BackupSettings.FileExtension}";
+                result.BackupStream.Position = 0;
 
                 return result;
             }

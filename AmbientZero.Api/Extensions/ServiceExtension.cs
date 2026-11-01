@@ -29,6 +29,7 @@ namespace AmbientZero.Api.Extensions
 
             services.AddTransient<IBashScriptsService, BashScriptsService>();
             services.AddTransient<ITimeZoneService, TimeZoneService>();
+            services.AddTransient(typeof(ITemporalJsonService<>),typeof(TemporalJsonService<>));
 
             ///////////////
             /// Modules ///

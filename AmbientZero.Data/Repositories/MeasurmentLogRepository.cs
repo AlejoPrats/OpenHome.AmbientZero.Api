@@ -20,7 +20,13 @@ namespace AmbientZero.Data.Repositories
 
         public IEnumerable<MeasurementLog> GetDailyMeasurements(DateTime startDateTime, DateTime endDateTime)
         {
-            return _ambientZeroContext.Measurements.Where(x => x.Date >= startDateTime && x.Date <= endDateTime).Include(x => x.DeviceInformation).ToList();
+            return _ambientZeroContext
+                .Measurements
+                .Where(x => x.Date >= startDateTime && x.Date <= endDateTime)
+                .Include(x => x.DeviceInformation)
+                .ThenInclude(di => di.Settings)
+                .AsNoTracking()
+                .ToList();
         }
 
         public IEnumerable<MeasurementLog> GetLastFiveMeasurementsBySensor(string deviceId)
@@ -29,6 +35,7 @@ namespace AmbientZero.Data.Repositories
                 .Where(x => x.DeviceId == deviceId)
                 .OrderByDescending(x => x.Date)
                 .Take(5)
+                .AsNoTracking()
                 .ToList();
         }
 
@@ -41,6 +48,7 @@ namespace AmbientZero.Data.Repositories
                     Date = g.Max(x => x.Date)
                 })
                 .Where(x => x.Date > cutoff)
+                .AsNoTracking()
                 .ToList();
         }
 

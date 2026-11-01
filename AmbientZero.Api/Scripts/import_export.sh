@@ -22,6 +22,8 @@ sleep 1
 cd /opt/api && dotnet AmbientZero.Api.dll --$MODE && cd -
 EXIT_CODE=$?
 
+sleep 25
+
 kill $PROGRESS_PID 2>/dev/null
 
 sync

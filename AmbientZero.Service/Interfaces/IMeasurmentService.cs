@@ -16,6 +16,6 @@ namespace AmbientZero.Service.Interfaces
         /// </summary>
         /// <param name="dateTime">Day of which you will get the temperature measurements</param>
         /// <returns></returns>
-        IEnumerable<MeasurementResult> GetDailyTemperature(DateTime dateTime);
+        ChartResult GetDailyTemperature(DateTime dateTime);
     }
 }

@@ -1,6 +1,13 @@
-﻿using AmbientZero.Service.Interfaces;
+﻿using AmbientZero.Data;
+using AmbientZero.Data.Backup;
+using AmbientZero.Service.Constants;
+using AmbientZero.Service.Interfaces;
+using AmbientZero.Service.Models;
 using AmbientZero.Service.Models.Result;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.IO;
+using System.Text.Json;
 
 namespace AmbientZero.Api.Controllers
 {
@@ -9,21 +16,20 @@ namespace AmbientZero.Api.Controllers
     public class SystemController : ControllerBase
     {
         private readonly IDeviceInformationService _deviceInformationService;
-        public SystemController(IDeviceInformationService deviceInformationService)
+        private readonly ISystemService _systemService;
+        public SystemController(IDeviceInformationService deviceInformationService,
+            ISystemService systemService)
         {
-            _deviceInformationService = deviceInformationService;
+            _deviceInformationService = deviceInformationService ?? throw new ArgumentNullException(nameof(deviceInformationService));
+            _systemService = systemService ?? throw new ArgumentNullException(nameof(systemService));
         }
 
         [HttpGet]
         [Route("WhoAmI")]
-        public DeviceDescription DeviceDescription()
+        public async Task<IActionResult> DeviceDescription()
         {
-            return new DeviceDescription()
-            {
-                DeviceId = Guid.Parse("0f3da17e-91b7-4e3f-9c8a-43171cf4b007"),
-                DeviceName = "AmbientZero",
-                Ip = _deviceInformationService.GetDeviceIpAdress()
-            };
+            var result = await _systemService.GetDeviceInformation();
+            return Ok(result);
         }
 
         [HttpGet]
@@ -31,6 +37,42 @@ namespace AmbientZero.Api.Controllers
         public string DeviceLocation()
         {
             return _deviceInformationService.GetSSIDName();
+        }
+
+        [HttpGet]
+        [Route("GetTimeZones")]
+        public IEnumerable<SystemTimeZone> GetTimeZones()
+        {
+            return TimeZoneInfo.GetSystemTimeZones().Select(x => new SystemTimeZone() { Id = x.Id, Name = x.DisplayName });
+        }
+
+        [HttpGet]
+        [Route("GetSystemInformation")]
+        public async Task<IActionResult> GetDeviceStatus()
+        {
+            var result = await _deviceInformationService.GetDeviceStatus();
+
+            if (result is null)
+            {
+                return Problem();
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("RamCleanup")]
+        public async Task<IActionResult> RamCleanup(FreeRamMode freeRamMode)
+        {
+            int result = await _systemService.FreeRam(freeRamMode);
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("Health")]
+        public IActionResult Health()
+        {
+            return Ok();
         }
     }
 }

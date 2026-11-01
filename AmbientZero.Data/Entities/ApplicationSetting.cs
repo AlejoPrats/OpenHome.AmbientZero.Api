@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AmbientZero.Data.Constants;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Reflection.Emit;
 
 namespace AmbientZero.Data.Entities
 {
@@ -10,6 +9,41 @@ namespace AmbientZero.Data.Entities
     {
         public int Id { get; set; }
         public string SettingName { get; set; }
-        public string SettingValue { get; set; }
+        public string? SettingValue { get; set; }
+
+        internal static void Map(EntityTypeBuilder<ApplicationSetting> entityBuilder)
+        {
+            entityBuilder.HasKey(x => x.Id);
+            entityBuilder.Property(x => x.Id).ValueGeneratedOnAdd();
+            entityBuilder.ToTable("applicationSetting");
+        }
+
+        internal static void Seed(EntityTypeBuilder<ApplicationSetting> entityBuilder)
+        {
+            entityBuilder.HasData(
+                new ApplicationSetting { Id = 1, SettingName = ApplicationSettingsConstants.TimeZone, SettingValue = ApplicationSettingsConstants.TimeZoneValue },
+                new ApplicationSetting { Id = 2, SettingName = ApplicationSettingsConstants.TemperatureSetting, SettingValue = ApplicationSettingsConstants.TemperatureSettingValue },
+                new ApplicationSetting { Id = 3, SettingName = ApplicationSettingsConstants.ApplicationSecurity, SettingValue = ApplicationSettingsConstants.ApplicationSecurityValue },
+                new ApplicationSetting { Id = 4, SettingName = ApplicationSettingsConstants.IsFirstRun, SettingValue = ApplicationSettingsConstants.IsFirstRunValue },
+                new ApplicationSetting { Id = 5, SettingName = ApplicationSettingsConstants.AccessPointName, SettingValue = ApplicationSettingsConstants.AccessPointNameValue },
+                new ApplicationSetting { Id = 6, SettingName = ApplicationSettingsConstants.AccessPointSecurity, SettingValue = ApplicationSettingsConstants.AccessPointSecurityValue },
+                new ApplicationSetting { Id = 7, SettingName = ApplicationSettingsConstants.AccessPointPassword, SettingValue = ApplicationSettingsConstants.AccessPointPasswordValue },
+                new ApplicationSetting { Id = 8, SettingName = ApplicationSettingsConstants.CheckForUpdatesEnabled, SettingValue = ApplicationSettingsConstants.CheckForUpdatesEnabledValue },
+                new ApplicationSetting { Id = 9, SettingName = ApplicationSettingsConstants.AutomaticUpdatesEnabled, SettingValue = ApplicationSettingsConstants.AutomaticUpdatesEnabledValue },
+                new ApplicationSetting { Id = 10, SettingName = ApplicationSettingsConstants.MaxBatteryAdcReading, SettingValue = ApplicationSettingsConstants.MaxBatteryAdcReadingValue },
+                new ApplicationSetting { Id = 11, SettingName = ApplicationSettingsConstants.MinBatteryAdcReading, SettingValue = ApplicationSettingsConstants.MinBatteryAdcReadingValue },
+                new ApplicationSetting { Id = 12, SettingName = ApplicationSettingsConstants.RootProjectURL, SettingValue = ApplicationSettingsConstants.RootProjectURLValue },
+                new ApplicationSetting { Id = 13, SettingName = ApplicationSettingsConstants.VersionUpdateEndpoint, SettingValue = ApplicationSettingsConstants.VersionUpdateEndpointValue },
+                new ApplicationSetting { Id = 14, SettingName = ApplicationSettingsConstants.RemoteDeviceId, SettingValue = ApplicationSettingsConstants.RemoteDeviceIdValue },
+                new ApplicationSetting { Id = 15, SettingName = ApplicationSettingsConstants.IsFirstRunSetup, SettingValue = ApplicationSettingsConstants.IsFirstRunSetupValue },
+                new ApplicationSetting { Id = 16, SettingName = ApplicationSettingsConstants.DefaultLanguage, SettingValue = ApplicationSettingsConstants.DefaultLanguageValue },
+                new ApplicationSetting { Id = 17, SettingName = ApplicationSettingsConstants.DefaultUnit, SettingValue = ApplicationSettingsConstants.DefaultUnitValue },
+                new ApplicationSetting { Id = 18, SettingName = ApplicationSettingsConstants.BootTime, SettingValue = ApplicationSettingsConstants.BootTimeDefaultValue },
+                new ApplicationSetting { Id = 19, SettingName = ApplicationSettingsConstants.SshPassword, SettingValue = ApplicationSettingsConstants.SshPasswordValue },
+                new ApplicationSetting { Id = 20, SettingName = ApplicationSettingsConstants.LastBackupDate, SettingValue = null },
+                new ApplicationSetting { Id = 21, SettingName = ApplicationSettingsConstants.DeviceName, SettingValue = ApplicationSettingsConstants.DeviceNameValue },
+                new ApplicationSetting { Id = 22, SettingName = ApplicationSettingsConstants.AccessPointChannel, SettingValue = ApplicationSettingsConstants.AccessPointChannelValue }
+                );
+        }
     }
 }

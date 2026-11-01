@@ -1,6 +1,8 @@
 ﻿using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models;
-using AmbientZero.Service.Models.Settings;
+using AmbientZero.Service.Models.Options;
+using AmbientZero.Service.Models.Result;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Text.Json;
@@ -11,30 +13,15 @@ namespace AmbientZero.Service.Services
     public class DeviceInformatonService : IDeviceInformationService
     {
         private readonly ServicesDependencies _servicesDependencies;
-        public DeviceInformatonService(IOptions<ServicesDependencies> servicesDependencies)
+        private readonly IBashScriptsService _bashScriptService;
+        private readonly ILogger<DeviceInformatonService> _logger;
+        public DeviceInformatonService(IOptions<ServicesDependencies> servicesDependencies,
+            IBashScriptsService bashScriptsService,
+            ILogger<DeviceInformatonService> logger)
         {
             _servicesDependencies = servicesDependencies?.Value ?? throw new ArgumentNullException(nameof(servicesDependencies));
-        }
-
-        public string GetDeviceIpAdress()
-        {
-            string commandResult = string.Empty;
-            ProcessStartInfo getNetCmd = new ProcessStartInfo() { FileName = "ip", Arguments = "-j -br address", RedirectStandardOutput = true };
-
-            using (Process proc = new Process() { StartInfo = getNetCmd })
-            {
-                proc.Start();
-                StreamReader sr = proc.StandardOutput;
-                commandResult = sr.ReadToEnd();
-                proc.WaitForExit();
-            }
-
-            var addressObject = JsonSerializer.Deserialize<List<AddressObject>>(commandResult);
-            var ip = addressObject
-                .FirstOrDefault(x => x.AdapterStatus == "UP" && x.AdapterName == "wlan1")
-                .AddressInformation
-                .FirstOrDefault(x => x.AddressType == Constants.IPAddressType.IPv4).IpAddress;
-            return ip;
+            _bashScriptService = bashScriptsService ?? throw new ArgumentNullException(nameof(bashScriptsService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public List<ServiceStatus> GetDeviceServiceStatus()
@@ -54,7 +41,18 @@ namespace AmbientZero.Service.Services
                     proc.WaitForExit();
                 }
 
-                result.Add(JsonSerializer.Deserialize<ServiceStatus>(commandResult));
+                ServiceStatus serviceStatus;
+
+                try
+                {
+                    serviceStatus = JsonSerializer.Deserialize<ServiceStatus>(commandResult)!;
+                    result.Add(serviceStatus);
+                }
+                catch
+                {
+                    continue;
+                }
+
             }
 
             return result;
@@ -62,8 +60,6 @@ namespace AmbientZero.Service.Services
 
         public List<string> GetDeviceApplicationLogs(string serviceName)
         {
-            var result = new List<string>();
-
             ProcessStartInfo getAppLogs = new ProcessStartInfo() { FileName = "journalctl", Arguments = $"--unit={serviceName} --lines=30", RedirectStandardOutput = true };
             string commandResult = string.Empty;
 
@@ -75,7 +71,7 @@ namespace AmbientZero.Service.Services
                 proc.WaitForExit();
             }
 
-            result = commandResult.Split(Environment.NewLine).ToList();
+            var result = commandResult.Split(Environment.NewLine).ToList();
 
             return result;
         }
@@ -112,58 +108,22 @@ namespace AmbientZero.Service.Services
             return int.Parse(mqttPort);
         }
 
-        public string GetCpuTemperature()
+        public async Task<DeviceStatusResult?> GetDeviceStatus()
         {
-            ProcessStartInfo getTemperature = new ProcessStartInfo() { FileName = "tail", Arguments = "/sys/class/thermal/thermal_zone0/temp", RedirectStandardOutput = true };
-            string temp = string.Empty;
 
-            using (Process proc = new Process() { StartInfo = getTemperature })
+            string systemInfoResponse = await _bashScriptService.GetSystemInfo();
+
+            if (string.IsNullOrEmpty(systemInfoResponse))
             {
-                string output = string.Empty;
-                proc.Start();
-                StreamReader sr = proc.StandardOutput;
-                temp = sr.ReadToEnd();
-                proc.WaitForExit();
+                return null;
             }
-
-            return (int.Parse(temp) / 1000).ToString();
-        }
-
-        public string GetCpuUsage()
-        {
-            ProcessStartInfo top = new ProcessStartInfo() { FileName = "top", Arguments = "-b -n1", RedirectStandardOutput = true };
-            string cpuUsage = string.Empty;
-
-            using (Process proc = new Process() { StartInfo = top })
+            else
             {
-                string output = string.Empty;
-                proc.Start();
-                StreamReader sr = proc.StandardOutput;
-                var topReadout = sr.ReadToEnd();
-                cpuUsage = topReadout.Substring(topReadout.IndexOf("id,") - 5, 4);
-                proc.WaitForExit();
+                return JsonSerializer.Deserialize<DeviceStatusResult>(systemInfoResponse, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
             }
-
-            return cpuUsage;
-        }
-
-        public string GetRamUsage()
-        {
-            ProcessStartInfo free = new ProcessStartInfo() { FileName = "free", RedirectStandardOutput = true };
-            string ramUsage = string.Empty;
-
-            using (Process proc = new Process() { StartInfo = free })
-            {
-                string output = string.Empty;
-                proc.Start();
-                StreamReader sr = proc.StandardOutput;
-                sr.ReadLine();
-                output = sr.ReadLine()!;
-                ramUsage = (int.Parse(Regex.Match(output, @"(\d+)(?!.*\d)").Value) * 100 / int.Parse(Regex.Match(output, @"\d+").Value)).ToString();
-                proc.WaitForExit();
-            }
-
-            return ramUsage;
         }
     }
 }

@@ -1,31 +1,35 @@
-using AmbientZero.Data;
-using AmbientZero.Data.Interfaces;
-using AmbientZero.Data.Repositories;
-using AmbientZero.Service.Interfaces;
-using AmbientZero.Service.Models.Settings;
-using AmbientZero.Service.Services;
+using AmbientZero.Api.AuthHandler;
+using AmbientZero.Api.Extensions;
+using AmbientZero.Api.ScheduledTasks;
+using AmbientZero.Service.Models.Options;
+using AmbientZero.Service.Modules;
+using Coravel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<AmbientZeroContext>(options => options.UseSqlite("Filename=ambientZero.db"));
+builder.Services.AddScheduler();
 
 builder.Services.Configure<ServicesDependencies>(builder.Configuration.GetSection("ServicesDependencies"));
 builder.Services.Configure<BatteryInfo>(builder.Configuration.GetSection("BatteryInfo"));
+builder.Services.Configure<Secrets>(builder.Configuration.GetSection("Secrets"));
 
-builder.Services.AddTransient<IMeasurmentService, MeasurmentService>();
-builder.Services.AddTransient<ISensorService, SensorService>();
-builder.Services.AddTransient<IDeviceInformationService, DeviceInformatonService>();
-builder.Services.AddScoped<IMeasurmentLogRepository, MeasurmentLogRepository>();
-builder.Services.AddScoped<IDeviceInformationRepository, DeviceInformationRepository>();
-builder.Services.AddScoped<ISensorSettingRepository, SensorSettingRepository>();
+builder.Services.AddServices();
+builder.Services.AddRepositories();
+builder.Services.AddScheduledJobs();
+
+using var tempProvider = builder.Services.BuildServiceProvider();
+var startupModule = tempProvider.GetRequiredService<IStartupModule>();
+
+startupModule.AddDbContext(builder.Services);
+
+builder.Services.AddScoped<IAuthorizationHandler, ProtectionHandler>();
 
 builder.Services.AddCors(options =>
 {
@@ -36,12 +40,70 @@ builder.Services.AddCors(options =>
                       });
 });
 
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = false;
+});
+
+builder.Services.AddCustomAuthentication(builder.Configuration["Secrets:TokenEncryptionKey"]);
+builder.Services.AddResponseCompression();
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Protected", policy =>
+        policy.Requirements.Add(new ProtectionRequirement()));
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("LoginLimit", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(5),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            }));
+});
+
 var app = builder.Build();
+
+startupModule.ValidateMigrations(app.Services);
+
+if (args.Length > 0)
+{
+    if (args.Contains("--migrate"))
+    {
+        return;
+    }
+    else if (args.Contains("--import"))
+    {
+        startupModule.ImportBackup(app.Services);
+        return;
+    }
+    else if (args.Contains("--export"))
+    {
+        startupModule.GenerateBackup(app.Services);
+        return;
+    }
+    else
+    {
+        Console.WriteLine("No valid argument found.");
+        Console.WriteLine("Valid arguments include --export, --import and --migrate");
+        return;
+    }
+}
+
+app.Services.UseScheduler(scheduler =>
+{
+    scheduler.Schedule<RebootJob>().Daily();
+});
+
+app.UseResponseCompression();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// Configure the HTTP request pipeline.
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -54,10 +116,9 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
+app.UseRateLimiter();
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
-app.MapFallbackToFile("/index.html");
 
 app.Run();

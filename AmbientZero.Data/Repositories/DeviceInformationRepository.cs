@@ -9,7 +9,7 @@ namespace AmbientZero.Data.Repositories
         private readonly AmbientZeroContext _ambientZeroContext;
         public DeviceInformationRepository(AmbientZeroContext ambientZeroContext)
         {
-            _ambientZeroContext = ambientZeroContext;
+            _ambientZeroContext = ambientZeroContext ?? throw new ArgumentNullException(nameof(ambientZeroContext));
         }
 
         public void AddNewSensor(DeviceInformation deviceInformation)
@@ -30,19 +30,34 @@ namespace AmbientZero.Data.Repositories
                 .ToList();
         }
 
+        public DeviceInformation? GetSensorById(int id)
+        {
+            return _ambientZeroContext.Devices
+                .Include(x => x.Settings)
+                .FirstOrDefault(x => x.Id == id);
+        }
+
         public void UpdateSensorSignal(DeviceInformation deviceInformation)
         {
             _ambientZeroContext.Devices
                 .Where(x => x.DeviceId == deviceInformation.DeviceId)
                 .ExecuteUpdate(x => x.SetProperty(d => d.IsSignaling, deviceInformation.IsSignaling)
-                .SetProperty(d => d.ADCReading, deviceInformation.ADCReading));
+                .SetProperty(d => d.ADCReading, deviceInformation.ADCReading)
+                .SetProperty(d => d.Version, deviceInformation.Version));
         }
 
-        public void UpdateSensorVirtualName(string deviceId, string virtualName)
+        public int UpdateSensorVirtualName(string deviceId, string virtualName)
         {
-            _ambientZeroContext.Devices
+            return _ambientZeroContext.Devices
                 .Where(x => x.DeviceId == deviceId)
                 .ExecuteUpdate(x => x.SetProperty(d => d.DeviceVirtualName, virtualName).SetProperty(d => d.IsSignaling, false));
+        }
+
+        public void DeleteSensor(int sensorId)
+        {
+            _ambientZeroContext.Devices
+                .Where(x => x.Id == sensorId)
+                .ExecuteDelete();
         }
     }
 }

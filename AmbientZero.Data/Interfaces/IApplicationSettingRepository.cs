@@ -1,9 +1,4 @@
 ﻿using AmbientZero.Data.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AmbientZero.Data.Interfaces
 {
@@ -11,6 +6,10 @@ namespace AmbientZero.Data.Interfaces
     {
         IEnumerable<ApplicationSetting> GetApplicationSettings();
         void AddApplicationSetting(ApplicationSetting applicationSettings);
-        void UpdateApplicationSetting(ApplicationSetting applicationSetting);
+        bool ApplicationSettingExists(string settingName);
+        IEnumerable<ApplicationSetting>? GetApplicationSettingsCollection(string[] applicationSettings);
+        ApplicationSetting? GetApplicationSettingByKey(string key);
+        IEnumerable<ApplicationSetting>? GetAdvancedApplicationSettings();
+        int UpdateApplicationSetting(string settingName, string settingValue);
     }
 }

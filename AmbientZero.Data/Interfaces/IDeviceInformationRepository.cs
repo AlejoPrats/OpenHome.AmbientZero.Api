@@ -7,7 +7,9 @@ namespace AmbientZero.Data.Interfaces
         void AddNewSensor(DeviceInformation deviceInformation);
         bool SensorExists(string deviceId);
         IEnumerable<DeviceInformation> GetAllSensors();
+        DeviceInformation? GetSensorById(int id);
         void UpdateSensorSignal(DeviceInformation deviceInformation);
-        void UpdateSensorVirtualName(string deviceId, string virtualName);
+        int UpdateSensorVirtualName(string deviceId, string virtualName);
+        void DeleteSensor(int sensorId);
     }
 }

@@ -3,8 +3,9 @@
     public class MeasurementRequest
     {
         public float Temperature { get; set; }
-        public string DeviceId { get; set; }
+        public string? DeviceId { get; set; }
         public int ADCReading { get; set; }
         public bool IsSignaling { get; set; }
+        public string Version { get; set; }
     }
 }

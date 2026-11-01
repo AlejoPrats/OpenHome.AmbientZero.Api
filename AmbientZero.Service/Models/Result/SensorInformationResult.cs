@@ -5,11 +5,14 @@
         public int Id { get; set; }
         public string DeviceId { get; set; }
         public string? DeviceVirtualName { get; set; }
-        public int? ADCReading { get; set; }
+        public int? RawADCReading { get; set; }
+        public int? BatteryPercentage { get; set; }
         public bool? IsSignaling { get; set; }
         public DateTime LastReadingTime { get; set; }
         public float? LastReadingValue { get; set; }
         public string TemperatureTendency { get; set; }
+        public bool? IsMigrated { get; set; }
+        public string Version { get; set; }
         public SensorSettingResult SensorSetting { get; set; }
     }
 }

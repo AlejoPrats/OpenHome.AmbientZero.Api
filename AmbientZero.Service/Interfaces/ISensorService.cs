@@ -11,12 +11,14 @@ namespace AmbientZero.Service.Interfaces
         /// <returns>Sensor information collection</returns>
         IEnumerable<SensorInformationResult> GetSensorInformation();
 
+        SensorInformationResult? GetSensorInformationById(int id);
+
         /// <summary>
         /// Updates the sensor virtual name
         /// </summary>
         /// <param name="deviceId">GUID as string</param>
         /// <param name="virtualName">New name for the sensor</param>
-        void UpdateSensorVirtualName(string deviceId, string virtualName);
+        int? UpdateSensorVirtualName(string deviceId, string virtualName);
 
         /// <summary>
         /// Updates the settings for the sensor
@@ -30,5 +32,12 @@ namespace AmbientZero.Service.Interfaces
         /// <param name="deviceId">GUID as string</param>
         /// <returns>boolean indicating the light behavior</returns>
         bool ShouldTurnLightOn(string deviceId);
+
+
+        /// <summary>
+        /// Delete Sensor and all the related information (Settings And Measurements)
+        /// </summary>
+        /// <param name="sensorId">Sensor PK</param>
+        void DeleteSensor(int sensorId);
     }
 }

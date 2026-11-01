@@ -2,3 +2,27 @@
 
 # CS8602: Dereference of a possibly null reference.
 dotnet_diagnostic.CS8602.severity = none
+
+# Disable collection expressions (IDE0305)
+dotnet_diagnostic.IDE0305.severity = none
+
+# Disable var‑everywhere suggestion (IDE0007)
+dotnet_diagnostic.IDE0007.severity = none
+
+# Disable expression‑bodied members (IDE0022)
+dotnet_diagnostic.IDE0022.severity = none
+
+# Disable 'new' expression can be simplified (IDE0090)
+dotnet_diagnostic.IDE0090.severity = none
+
+# Disable Use primary constructor (IDE0290)
+dotnet_diagnostic.IDE0290.severity = none
+
+# Disable Object initialization can be simplified (IDE0290)
+dotnet_diagnostic.IDE0017.severity = none
+
+# Disable Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time.
+dotnet_diagnostic.SYSLIB1045.severity = none
+
+# Disable Non-nullable property 'object' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable.
+dotnet_diagnostic.CS8618.severity = none

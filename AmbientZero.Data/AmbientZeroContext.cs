@@ -1,25 +1,34 @@
 ﻿using AmbientZero.Data.Entities;
-using AmbientZero.Data.Mappings;
 using Microsoft.EntityFrameworkCore;
 
 namespace AmbientZero.Data
 {
     public class AmbientZeroContext : DbContext
     {
+        public DbSet<ApplicationSetting> ApplicationSettings { get; set; }
+        public DbSet<ApplicationVersion> ApplicationVersions { get; set; }
         public DbSet<DeviceInformation> Devices { get; set; }
         public DbSet<MeasurementLog> Measurements { get; set; }
         public DbSet<SensorSetting> SensorSettings { get; set; }
-        public DbSet<ApplicationSetting> ApplicationSettings { get; set; }
-        public AmbientZeroContext(DbContextOptions<AmbientZeroContext> options) : base(options)
-        {
-            Database.EnsureCreated();
-        }
+        public DbSet<User> Users { get; set; }
+        public DbSet<MigrationReference> MigrationReferences { get; set; }
+        public AmbientZeroContext(DbContextOptions<AmbientZeroContext> options) : base(options){ }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            DeviceInformationMap.Map(modelBuilder.Entity<DeviceInformation>());
-            MeasurementLogMap.Map(modelBuilder.Entity<MeasurementLog>());
-            SensorSettingMap.Map(modelBuilder.Entity<SensorSetting>());
+            ApplicationSetting.Map(modelBuilder.Entity<ApplicationSetting>());
+            ApplicationVersion.Map(modelBuilder.Entity<ApplicationVersion>());
+            ChartColor.Map(modelBuilder.Entity<ChartColor>());
+            DeviceInformation.Map(modelBuilder.Entity<DeviceInformation>());
+            MeasurementLog.Map(modelBuilder.Entity<MeasurementLog>());
+            MigrationReference.Map(modelBuilder.Entity<MigrationReference>());
+            SensorSetting.Map(modelBuilder.Entity<SensorSetting>());
+            User.Map(modelBuilder.Entity<User>());
+
+            ApplicationSetting.Seed(modelBuilder.Entity<ApplicationSetting>());
+            ApplicationVersion.Seed(modelBuilder.Entity<ApplicationVersion>());
+            ChartColor.Seed(modelBuilder.Entity<ChartColor>());
+            User.Seed(modelBuilder.Entity<User>());
 
             base.OnModelCreating(modelBuilder);
         }

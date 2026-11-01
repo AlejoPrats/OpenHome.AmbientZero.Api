@@ -9,7 +9,7 @@ namespace AmbientZero.Data.Repositories
         private readonly AmbientZeroContext _ambientZeroContext;
         public SensorSettingRepository(AmbientZeroContext ambientZeroContext)
         {
-            _ambientZeroContext = ambientZeroContext;
+            _ambientZeroContext = ambientZeroContext ?? throw new ArgumentNullException(nameof(ambientZeroContext));
         }
 
         public bool SensorSettingExist(string deviceId)
@@ -36,6 +36,11 @@ namespace AmbientZero.Data.Repositories
                     .SetProperty(s => s.IsLightOnSchedule, sensorSetting.IsLightOnSchedule)
                     .SetProperty(s => s.DisableStartTime, sensorSetting.DisableStartTime)
                     .SetProperty(s => s.DisableEndTime, sensorSetting.DisableEndTime));
+        }
+
+        public void DeleteSensorSettings(int settingId)
+        {
+            _ambientZeroContext.SensorSettings.Where(x => x.Id == settingId).ExecuteDelete();
         }
     }
 }

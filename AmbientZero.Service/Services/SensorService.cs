@@ -136,6 +136,11 @@ namespace AmbientZero.Service.Services
 
         public void UpdateSensorVirtualName(string deviceId, string virtualName)
         {
+            if (string.IsNullOrEmpty(virtualName.Trim()))
+            {
+                return;
+            }
+
             _deviceInformationRepository.UpdateSensorVirtualName(deviceId, virtualName);
         }
 

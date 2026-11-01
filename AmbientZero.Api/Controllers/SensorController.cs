@@ -51,7 +51,13 @@ namespace AmbientZero.Api.Controllers
         [Route("UpdateSensorName")]
         public async Task<IActionResult> UpdateSensorName(UpdateNameRequest updateNameRequest)
         {
-            _sensorService.UpdateSensorVirtualName(updateNameRequest.DeviceId, updateNameRequest.VirtualName);
+            var result = _sensorService.UpdateSensorVirtualName(updateNameRequest.DeviceId, updateNameRequest.VirtualName);
+
+            if (result is null)
+            {
+                return UnprocessableEntity();
+            }
+
             return Accepted();
         }
 

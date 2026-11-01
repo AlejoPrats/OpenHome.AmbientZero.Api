@@ -18,7 +18,7 @@ namespace AmbientZero.Service.Interfaces
         /// </summary>
         /// <param name="deviceId">GUID as string</param>
         /// <param name="virtualName">New name for the sensor</param>
-        void UpdateSensorVirtualName(string deviceId, string virtualName);
+        int? UpdateSensorVirtualName(string deviceId, string virtualName);
 
         /// <summary>
         /// Updates the settings for the sensor

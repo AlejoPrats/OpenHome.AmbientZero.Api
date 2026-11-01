@@ -46,9 +46,9 @@ namespace AmbientZero.Data.Repositories
                 .SetProperty(d => d.Version, deviceInformation.Version));
         }
 
-        public void UpdateSensorVirtualName(string deviceId, string virtualName)
+        public int UpdateSensorVirtualName(string deviceId, string virtualName)
         {
-            _ambientZeroContext.Devices
+            return _ambientZeroContext.Devices
                 .Where(x => x.DeviceId == deviceId)
                 .ExecuteUpdate(x => x.SetProperty(d => d.DeviceVirtualName, virtualName).SetProperty(d => d.IsSignaling, false));
         }

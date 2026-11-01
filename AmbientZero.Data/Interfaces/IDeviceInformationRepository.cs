@@ -9,7 +9,7 @@ namespace AmbientZero.Data.Interfaces
         IEnumerable<DeviceInformation> GetAllSensors();
         DeviceInformation? GetSensorById(int id);
         void UpdateSensorSignal(DeviceInformation deviceInformation);
-        void UpdateSensorVirtualName(string deviceId, string virtualName);
+        int UpdateSensorVirtualName(string deviceId, string virtualName);
         void DeleteSensor(int sensorId);
     }
 }

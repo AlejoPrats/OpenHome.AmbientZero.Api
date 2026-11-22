@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 TARGET_SCRIPT="$1" # $1 = The absolute path to the script you want to run
 SCRIPT_ARGS=("${@:2}") # ${@:2} = Every other argument passed after it (forwarded completely)
 

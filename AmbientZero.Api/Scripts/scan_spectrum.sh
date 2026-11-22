@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 
 AP_INT="wlan0"
 STA_INT="wlan1"

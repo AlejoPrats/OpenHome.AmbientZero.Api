@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 SOURCE_DIR="/usr/share/zoneinfo"
 OUTPUT_FILE="/dev/shm/timezones.json"

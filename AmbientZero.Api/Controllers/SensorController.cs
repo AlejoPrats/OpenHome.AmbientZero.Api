@@ -13,8 +13,7 @@ namespace AmbientZero.Api.Controllers
         private readonly ILogger<SensorController> _logger;
         private readonly ISensorService _sensorService;
 
-        public SensorController(ILogger<SensorController> logger,
-    ISensorService sensorService)
+        public SensorController(ILogger<SensorController> logger, ISensorService sensorService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _sensorService = sensorService ?? throw new ArgumentNullException(nameof(sensorService));
@@ -44,6 +43,21 @@ namespace AmbientZero.Api.Controllers
                 return Ok(result);
             }
 
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "Protected")]
+        [Route("MergeSesnor")]
+        public IActionResult MergeSensor(MergeSensorRequest request)
+        {
+            bool success = _sensorService.MergeSensors(request);
+
+            if (success)
+            {
+                return Accepted();
+            }
+
+            return Problem();
         }
 
         [HttpPatch]
@@ -78,6 +92,5 @@ namespace AmbientZero.Api.Controllers
             _sensorService.DeleteSensor(sensorId);
             return NoContent();
         }
-
     }
 }

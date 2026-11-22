@@ -16,4 +16,8 @@
     <ProjectReference Include="..\AmbientZero.Data\AmbientZero.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Backup\" />
+  </ItemGroup>
+
 </Project>

@@ -43,13 +43,23 @@ namespace AmbientZero.Data.Repositories
         {
             return _ambientZeroContext.Measurements
                 .GroupBy(m => m.DeviceId)
-                .Select(g => new MeasurementLog {
+                .Select(g => new MeasurementLog
+                {
                     DeviceId = g.Key,
                     Date = g.Max(x => x.Date)
                 })
                 .Where(x => x.Date > cutoff)
                 .AsNoTracking()
                 .ToList();
+        }
+
+        public void MergeSensorsMeasurements(string originDeviceId, string destinyDeviceId)
+        {
+            _ambientZeroContext
+                .Measurements
+                .Where(x => x.DeviceId == originDeviceId)
+                .ExecuteUpdate(x =>
+                x.SetProperty(m => m.DeviceId, destinyDeviceId));
         }
 
         public void DeleteSensorMeasurements(string deviceId)

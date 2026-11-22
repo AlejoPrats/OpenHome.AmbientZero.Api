@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 jq -n \
   --arg mem_avail "$(awk '/MemAvailable/ {val=$2/1024; if (val < 1024) printf "%.1f MiB", val; else printf "%.2f GiB", val/1024}' /proc/meminfo)" \

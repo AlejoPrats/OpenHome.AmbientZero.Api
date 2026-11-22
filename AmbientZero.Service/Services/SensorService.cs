@@ -1,11 +1,12 @@
 ﻿using AmbientZero.Data.Constants;
 using AmbientZero.Data.Entities;
 using AmbientZero.Data.Interfaces;
+using AmbientZero.Data.Transactions;
 using AmbientZero.Service.Constants;
 using AmbientZero.Service.Interfaces;
+using AmbientZero.Service.Models.Options;
 using AmbientZero.Service.Models.Request;
 using AmbientZero.Service.Models.Result;
-using AmbientZero.Service.Models.Options;
 using Microsoft.Extensions.Options;
 
 namespace AmbientZero.Service.Services
@@ -16,18 +17,21 @@ namespace AmbientZero.Service.Services
         private readonly IDeviceInformationRepository _deviceInformationRepository;
         private readonly ISensorSettingRepository _sensorSettingRepository;
         private readonly IApplicationSettingRepository _applicationSettingRepository;
+        private readonly ITransactionScope _transactionScope;
         private readonly BatteryInfo _batteryInfo;
 
         public SensorService(IMeasurmentLogRepository measurmentLogRepository,
             IDeviceInformationRepository deviceInformationRepository,
             ISensorSettingRepository sensorSettingRepository,
             IApplicationSettingRepository applicationSettingRepository,
+            ITransactionScope transactionScope,
             IOptions<BatteryInfo> batteryInfo)
         {
             _measurmentRepository = measurmentLogRepository ?? throw new ArgumentNullException(nameof(measurmentLogRepository));
             _deviceInformationRepository = deviceInformationRepository ?? throw new ArgumentNullException(nameof(deviceInformationRepository));
             _sensorSettingRepository = sensorSettingRepository ?? throw new ArgumentNullException(nameof(sensorSettingRepository));
             _applicationSettingRepository = applicationSettingRepository ?? throw new ArgumentNullException(nameof(applicationSettingRepository));
+            _transactionScope = transactionScope ?? throw new ArgumentNullException(nameof(transactionScope));
             _batteryInfo = batteryInfo?.Value ?? throw new ArgumentNullException(nameof(batteryInfo));
         }
 
@@ -50,6 +54,7 @@ namespace AmbientZero.Service.Services
                     DeviceVirtualName = x.DeviceVirtualName,
                     Id = x.Id,
                     IsSignaling = x.IsSignaling,
+                    IsMigrated = x.IsMigrated,
                     SensorSetting = new SensorSettingResult
                     {
                         DeviceId = x.Settings!.DeviceId,
@@ -134,14 +139,14 @@ namespace AmbientZero.Service.Services
             return sensorResult;
         }
 
-        public void UpdateSensorVirtualName(string deviceId, string virtualName)
+        public int? UpdateSensorVirtualName(string deviceId, string virtualName)
         {
             if (string.IsNullOrEmpty(virtualName.Trim()))
             {
-                return;
+                return null;
             }
 
-            _deviceInformationRepository.UpdateSensorVirtualName(deviceId, virtualName);
+            return _deviceInformationRepository.UpdateSensorVirtualName(deviceId, virtualName);
         }
 
         public void UpdateSensorSettings(UpdateSettingsRequest updateSettingsRequest)
@@ -182,9 +187,9 @@ namespace AmbientZero.Service.Services
                 .GetApplicationSettings()
                 .FirstOrDefault(x => x.SettingName == ApplicationSettingsConstants.TimeZone)?.SettingValue ?? string.Empty;
 
-            if (settings.IsLightEnabled)
+            if (settings.IsLightEnabled!.Value)
             {
-                if (settings.IsLightOnSchedule)
+                if (settings.IsLightOnSchedule!.Value)
                 {
                     var actualTime = TimeOnly.FromDateTime(GetTime(DateTime.UtcNow, timeZoneId));
 
@@ -243,6 +248,28 @@ namespace AmbientZero.Service.Services
                 _sensorSettingRepository.DeleteSensorSettings(sensor.Settings.Id);
                 _measurmentRepository.DeleteSensorMeasurements(sensor.DeviceId);
             }
+        }
+
+        public bool MergeSensors(MergeSensorRequest request)
+        {
+            var originSensor = _deviceInformationRepository.GetSensorByDeviceId(request.OriginDeviceId.ToString());
+
+            if (originSensor is null)
+            {
+                return false;
+            }
+
+            originSensor.Settings.DeviceId = request.DestinyDeviceId.ToString();
+
+            _transactionScope.Execute(() =>
+            {
+                _sensorSettingRepository.UpdaterSensorSetting(originSensor.Settings);
+                _measurmentRepository.MergeSensorsMeasurements(request.OriginDeviceId.ToString(), request.DestinyDeviceId.ToString());
+                _sensorSettingRepository.DeleteSensorSettings(originSensor.Settings.Id);
+                _deviceInformationRepository.DeleteSensor(originSensor.Id);
+            });
+
+            return true;
         }
     }
 

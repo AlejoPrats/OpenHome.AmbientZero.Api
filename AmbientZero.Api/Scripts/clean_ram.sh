@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 CLEAN_TYPE="$1"
 RESTART_DELAY="${2:-10}"
 

@@ -26,9 +26,10 @@ namespace AmbientZero.Api.Controllers
         }
 
         [HttpPost]
-        public IActionResult UploadBackupFile(IFormFile file)
+        [Route("UploadBackupFile")]
+        public async Task<IActionResult> UploadBackupFile(IFormFile file)
         {
-            var result = _backupService.BackupFileUpload(file.OpenReadStream());
+            var result = await _backupService.BackupFileUpload(file);
 
             if (result == false)
             {
@@ -52,11 +53,11 @@ namespace AmbientZero.Api.Controllers
             return File(result.BackupStream, "application/octet-stream", result.Filename);
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("ImportBackup")]
-        public IActionResult ImportBackup(IFormFile backup)
+        public IActionResult ImportBackup()
         {
-            _backupService.ImportBackupFile();
+            _backupService.ImportBackup();
             return Ok();
         }
     }

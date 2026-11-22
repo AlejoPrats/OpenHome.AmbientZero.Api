@@ -19,7 +19,9 @@ namespace AmbientZero.Data.Repositories
 
         public SensorSetting? GetSensorSettingForSensor(string deviceId)
         {
-            return _ambientZeroContext.SensorSettings.FirstOrDefault(x => x.DeviceId == deviceId);
+            return _ambientZeroContext.SensorSettings
+                .AsNoTracking()
+                .FirstOrDefault(x => x.DeviceId == deviceId);
         }
 
         public void AddSensorSetting(SensorSetting sensorSetting)
@@ -32,10 +34,11 @@ namespace AmbientZero.Data.Repositories
         {
             _ambientZeroContext.SensorSettings.Where(x => x.DeviceId == sensorSetting.DeviceId)
                 .ExecuteUpdate(x =>
-                x.SetProperty(s => s.IsLightEnabled, sensorSetting.IsLightEnabled)
-                    .SetProperty(s => s.IsLightOnSchedule, sensorSetting.IsLightOnSchedule)
-                    .SetProperty(s => s.DisableStartTime, sensorSetting.DisableStartTime)
-                    .SetProperty(s => s.DisableEndTime, sensorSetting.DisableEndTime));
+                x.SetProperty(s => s.IsLightEnabled, s => sensorSetting.IsLightEnabled.HasValue ? sensorSetting.IsLightEnabled : s.IsLightEnabled)
+                    .SetProperty(s => s.IsLightOnSchedule, s => sensorSetting.IsLightOnSchedule.HasValue ? sensorSetting.IsLightOnSchedule : s.IsLightOnSchedule)
+                    .SetProperty(s => s.DisableStartTime, s => sensorSetting.DisableStartTime ?? s.DisableStartTime)
+                    .SetProperty(s => s.DisableEndTime, s => sensorSetting.DisableEndTime ?? s.DisableEndTime)
+                    .SetProperty(s => s.Color, s => sensorSetting.Color ?? s.Color));
         }
 
         public void DeleteSensorSettings(int settingId)

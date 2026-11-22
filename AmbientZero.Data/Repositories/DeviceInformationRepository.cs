@@ -27,6 +27,7 @@ namespace AmbientZero.Data.Repositories
         {
             return _ambientZeroContext.Devices
                 .Include(x => x.Settings)
+                .AsNoTracking()
                 .ToList();
         }
 
@@ -34,7 +35,16 @@ namespace AmbientZero.Data.Repositories
         {
             return _ambientZeroContext.Devices
                 .Include(x => x.Settings)
+                .AsNoTracking()
                 .FirstOrDefault(x => x.Id == id);
+        }
+
+        public DeviceInformation? GetSensorByDeviceId(string deviceId)
+        {
+            return _ambientZeroContext.Devices
+                .Include(x => x.Settings)
+                .AsNoTracking()
+                .FirstOrDefault(x => x.DeviceId == deviceId);
         }
 
         public void UpdateSensorSignal(DeviceInformation deviceInformation)
@@ -59,5 +69,6 @@ namespace AmbientZero.Data.Repositories
                 .Where(x => x.Id == sensorId)
                 .ExecuteDelete();
         }
+
     }
 }

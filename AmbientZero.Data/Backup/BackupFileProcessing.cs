@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AmbientZero.Data.Backup.Models;
+using AmbientZero.Data.Constants;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,13 +28,14 @@ namespace AmbientZero.Data.Backup
         public bool HasMoreBlocks => !_reader.EndOfStream;
         private StreamReader _reader;
         private readonly string _fileLocation;
-        private readonly StringBuilder _metadataStringBuilder = new StringBuilder();
         private readonly StringBuilder _queryStringBuilder = new StringBuilder();
+        private ImportMetadata ImportMetadata = new ImportMetadata();
+        public ImportMetadata Metadata => ImportMetadata;
 
         #region Fluent Api Interfaces
 
         private BackupFileProcessing(string fileLocation)
-        { 
+        {
             _fileLocation = fileLocation;
         }
 
@@ -71,6 +74,7 @@ namespace AmbientZero.Data.Backup
             /// Indicates whether there is more SQL content to read from the backup file.
             /// </summary>
             bool HasMoreBlocks { get; }
+            ImportMetadata Metadata { get; }
         }
         #endregion
 
@@ -103,7 +107,6 @@ namespace AmbientZero.Data.Backup
                 {
                     continue;
                 }
-
                 _queryStringBuilder.Append(line);
             }
 
@@ -128,8 +131,27 @@ namespace AmbientZero.Data.Backup
                     break;
                 }
 
-                _metadataStringBuilder.AppendLine(line);
+                switch (line)
+                {
+                    case var _ when line.StartsWith(BackupMetadataConstants.CreatedUtc, StringComparison.Ordinal):
+                        ImportMetadata.CreatedOn = DateTime.Parse(line.Substring(BackupMetadataConstants.CreatedUtcLength));
+                        break;
+                    case var _ when line.StartsWith(BackupMetadataConstants.SensorSettingsExported, StringComparison.Ordinal):
+                        ImportMetadata.SensorSettingsExported = int.Parse(line.Substring(BackupMetadataConstants.SensorSettingsExportedLength));
+                        break;
+                    case var _ when line.StartsWith(BackupMetadataConstants.SensorsExported, StringComparison.Ordinal):
+                        ImportMetadata.SensorsExported = int.Parse(line.Substring(BackupMetadataConstants.SensorsExportedLength));
+                        break;
+                    case var _ when line.StartsWith(BackupMetadataConstants.TemperatureLogsExported, StringComparison.Ordinal):
+                        ImportMetadata.TemperatureLogsExported = int.Parse(line.Substring(BackupMetadataConstants.TemperatureLogsExportedLength));
+                        break;
+                    case var _ when line.StartsWith(BackupMetadataConstants.TemperatureLogsPages):
+                        ImportMetadata.TemperatureLogsPages = int.Parse(line.Substring(BackupMetadataConstants.TemperatureLogsPagesLength));
+                        break;
+                }
             }
+
+
         }
     }
 }

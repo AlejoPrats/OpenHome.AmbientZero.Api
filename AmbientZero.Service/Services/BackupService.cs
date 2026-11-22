@@ -9,6 +9,8 @@ using AmbientZero.Service.Interfaces;
 using AmbientZero.Service.Models;
 using AmbientZero.Service.Models.Response;
 using AmbientZero.Service.Models.Response.Export;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace AmbientZero.Service.Services
 {
@@ -19,19 +21,22 @@ namespace AmbientZero.Service.Services
         private readonly IBashScriptsService _bashScriptsService;
         private readonly ITransactionScope _transactionScope;
         private readonly ITemporalJsonService<ProcessProgress> _temporalJsonService;
+        private readonly ILogger<BackupService> _logger;
         private const int _pageSize = 2000;
 
         public BackupService(IBackupRepository backupRepository,
             IApplicationSettingRepository applicationSettingRepository,
             IBashScriptsService bashScriptsService,
             ITransactionScope transactionScope,
-            ITemporalJsonService<ProcessProgress> temporalJsonService)
+            ITemporalJsonService<ProcessProgress> temporalJsonService,
+            ILogger<BackupService> logger)
         {
             _backupRepository = backupRepository ?? throw new ArgumentNullException(nameof(backupRepository));
             _applicationSettingRepository = applicationSettingRepository ?? throw new ArgumentNullException(nameof(applicationSettingRepository));
             _bashScriptsService = bashScriptsService ?? throw new ArgumentNullException(nameof(bashScriptsService));
             _transactionScope = transactionScope ?? throw new ArgumentNullException(nameof(transactionScope));
             _temporalJsonService = temporalJsonService ?? throw new ArgumentNullException(nameof(temporalJsonService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public void GenerateBackup()
@@ -39,6 +44,13 @@ namespace AmbientZero.Service.Services
             _temporalJsonService.UpdateState(new ProcessProgress() { Percentage = 0, Status = "Starting" });
             _temporalJsonService.SaveBackground();
             _bashScriptsService.OfflineExecution(ExecutionModeConstants.Export);
+        }
+
+        public void ImportBackup()
+        {
+            _temporalJsonService.UpdateState(new ProcessProgress() { Percentage = 0, Status = "Starting" });
+            _temporalJsonService.SaveBackground();
+            _bashScriptsService.OfflineExecution(ExecutionModeConstants.Import);
         }
 
         public bool GenerateBackupFile(string[]? deviceIds = null)
@@ -89,8 +101,8 @@ namespace AmbientZero.Service.Services
                     sensor.Settings.DisableEndTime,
                     sensor.Settings.DisableStartTime,
                     sensor.Settings.Color,
-                    sensor.Settings.IsLightEnabled,
-                    sensor.Settings.IsLightOnSchedule);
+                    sensor.Settings.IsLightEnabled!.Value,
+                    sensor.Settings.IsLightOnSchedule!.Value);
             }
 
             var pages = (double)measurementsCount / _pageSize;
@@ -158,12 +170,7 @@ namespace AmbientZero.Service.Services
             }
         }
 
-        public void ImportBackup()
-        {
-            _bashScriptsService.OfflineExecution(ExecutionModeConstants.Import);
-        }
-
-        public bool BackupFileUpload(Stream file)
+        public async Task<bool> BackupFileUpload(IFormFile file)
         {
             try
             {
@@ -176,7 +183,7 @@ namespace AmbientZero.Service.Services
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    file.CopyTo(stream);
+                    await file.CopyToAsync(stream);
                 }
 
                 return true;
@@ -186,14 +193,24 @@ namespace AmbientZero.Service.Services
                 return false;
             }
         }
+
         public BackupImportResponse ImportBackupFile()
         {
             var result = new BackupImportResponse() { IsSuccess = true };
             string filePath = Path.Combine(BackupSettings.UploadBackupPath, BackupSettings.ImportedBackupFileName);
-
+            var processProgress = new ProcessProgress();
             var backupFileProcessing = BackupFileProcessing
                 .SetFileLocation(filePath)
                 .Open();
+
+            processProgress.Messages = new Dictionary<string, string>
+            {
+                { TemporalJsonMessageKeys.TotalRows, backupFileProcessing.Metadata.TemperatureLogsExported.ToString() },
+                { TemporalJsonMessageKeys.ProcessedRows, "0" },
+                { TemporalJsonMessageKeys.TotalSensors, backupFileProcessing.Metadata.SensorsExported.ToString() }
+            };
+            _temporalJsonService.UpdateState(processProgress);
+            _temporalJsonService.SaveBackground();
 
             try
             {
@@ -201,15 +218,29 @@ namespace AmbientZero.Service.Services
                 {
                     while (backupFileProcessing.HasMoreBlocks)
                     {
+                        int processedRowsCount = 0;
                         var sql = backupFileProcessing.ReadNextBlock();
                         _backupRepository.ExecuteSqlRaw(sql!);
+                        
+                        processedRowsCount += processedRowsCount < backupFileProcessing.Metadata.TemperatureLogsExported 
+                        ? _pageSize
+                        : (backupFileProcessing.Metadata.TemperatureLogsExported - processedRowsCount );
+                        
+                        processProgress.Messages[TemporalJsonMessageKeys.ProcessedRows] = processedRowsCount.ToString();
+                        _temporalJsonService.UpdateState(processProgress);
+                        _temporalJsonService.SaveBackground();
                     }
                 });
+
+                processProgress.Percentage = 100;
+                _temporalJsonService.UpdateState(processProgress);
+                _temporalJsonService.SaveBackground();
             }
             catch (Exception ex)
             {
                 result.IsSuccess = false;
                 result.ErrorMessage = ex.Message;
+                _logger.LogError(ex, "Import Failed");
                 return result;
             }
             finally

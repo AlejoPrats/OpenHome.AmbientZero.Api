@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 # Stateless Hardware Executor for Dynamic AP Channel Selection
 
 TARGET_CHANNEL="$1"

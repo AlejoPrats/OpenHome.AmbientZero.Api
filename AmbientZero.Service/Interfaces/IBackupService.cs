@@ -1,4 +1,5 @@
 ﻿using AmbientZero.Service.Models.Response;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,8 @@ namespace AmbientZero.Service.Interfaces
         void GenerateBackup();
         BackupFileResponse? GetFileStream();
         bool GenerateBackupFile(string[]? deviceIds = null);
-        bool BackupFileUpload(Stream file);
+        Task<bool> BackupFileUpload(IFormFile file);
+        void ImportBackup();
         BackupImportResponse ImportBackupFile();
     }
 }

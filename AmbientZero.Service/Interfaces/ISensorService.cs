@@ -39,5 +39,7 @@ namespace AmbientZero.Service.Interfaces
         /// </summary>
         /// <param name="sensorId">Sensor PK</param>
         void DeleteSensor(int sensorId);
+
+        bool MergeSensors(MergeSensorRequest request);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AmbientZero.Data.Constants;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,11 +26,11 @@ namespace AmbientZero.Data.Backup
 
         public void WriteMetadata(DateTime createdUtc, int sensorCount, int measurementsCount, int measurementPages)
         {
-            _writer.WriteLine($"-- CREATED_UTC: {createdUtc:O}");
-            _writer.WriteLine($"-- SENSORS EXPORTED: {sensorCount}");
-            _writer.WriteLine($"-- SENSOR SETTINGS EXPORTED: {sensorCount}");
-            _writer.WriteLine($"-- TEMPERATURE LOGS EXPORTED: {measurementsCount}");
-            _writer.WriteLine($"-- TEMPERATURE LOGS PAGES: {measurementPages}");
+            _writer.WriteLine($"{BackupMetadataConstants.CreatedUtc} {createdUtc:O}");
+            _writer.WriteLine($"{BackupMetadataConstants.SensorsExported} {sensorCount}");
+            _writer.WriteLine($"{BackupMetadataConstants.SensorSettingsExported} {sensorCount}");
+            _writer.WriteLine($"{BackupMetadataConstants.TemperatureLogsExported} {measurementsCount}");
+            _writer.WriteLine($"{BackupMetadataConstants.TemperatureLogsPages} {measurementPages}");
             _writer.WriteLine();
         }
 

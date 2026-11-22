@@ -1,3 +1,5 @@
+#!/bin/bash
+
 RANDOM_KEY=$(tr -dc 'A-Za-z0-9!#$%&()*+,-.:;=?@^_~' </dev/urandom | head -c 64)
 
 tmpfile=$(mktemp)

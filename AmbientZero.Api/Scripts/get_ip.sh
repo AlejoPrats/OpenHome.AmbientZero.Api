@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 ADAPTER_NAME="$1"
 
 if [ -z "$ADAPTER_NAME" ]; then

@@ -8,6 +8,7 @@ namespace AmbientZero.Data.Interfaces
         IEnumerable<MeasurementLog> GetDailyMeasurements(DateTime startDateTime, DateTime endDateTime);
         IEnumerable<MeasurementLog> GetLastFiveMeasurementsBySensor(string deviceId);
         IEnumerable<MeasurementLog> GetLastReadingsFromAllSensors(DateTime cutoff);
+        void MergeSensorsMeasurements(string originDeviceId, string destinyDeviceId);
         void DeleteSensorMeasurements(string deviceId);
     }
 }

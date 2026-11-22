@@ -531,10 +531,10 @@ namespace AmbientZero.Data.Migrations
                     b.Property<string>("DisableStartTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsLightEnabled")
+                    b.Property<bool?>("IsLightEnabled")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("IsLightOnSchedule")
+                    b.Property<bool?>("IsLightOnSchedule")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
